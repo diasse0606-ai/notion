@@ -37,16 +37,18 @@ button{cursor:pointer}
 .field:focus-visible{outline:none;border-color:var(--deep)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-.row{display:flex;align-items:center;gap:14px}
-.track{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:20px;padding:12px 4px;overflow:hidden}
-.card{flex:0 1 190px;min-width:110px;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 8px 10px;box-shadow:0 6px 14px -8px rgba(43,116,189,.45);display:flex;flex-direction:column;gap:7px;transition:transform .2s}
+.row{display:flex;align-items:center;gap:10px}
+.track{flex:1;min-width:0;display:flex;gap:18px;padding:14px 6px 16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;cursor:grab;-webkit-overflow-scrolling:touch}
+.track::-webkit-scrollbar{display:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
+.card{flex:0 0 clamp(120px,30%,190px);scroll-snap-align:start;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 8px 10px;box-shadow:0 6px 14px -8px rgba(43,116,189,.45);display:flex;flex-direction:column;gap:7px;margin:0;transition:transform .25s;user-select:none}
 .card:hover{transform:rotate(0deg) translateY(-3px)!important}
 .pic{aspect-ratio:3/4;border-radius:6px;background:var(--soft);overflow:hidden;display:block}
-.pic img{width:100%;height:100%;object-fit:cover;display:block}
-.cap{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;padding:0 2px}
+.pic img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.cap{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;padding:0 2px;min-height:1.2em}
 .cap span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .dots{display:flex;justify-content:center;gap:6px}
-.dots i{width:7px;height:7px;border-radius:999px;background:var(--soft)}
+.dots i{width:7px;height:7px;border-radius:999px;background:var(--soft);transition:width .25s,background .25s}
 .dots i.on{width:18px;background:var(--deep)}
 
 </style></head><body>
@@ -70,19 +72,25 @@ const fmtLong=k=>{const d=parseKey(k);return `${d.getFullYear()}년 ${d.getMonth
 // 다른 위젯에서 바뀐 내용 반영
 addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh)refresh()});
 
-let items=[],page=0;
-const per=()=>innerWidth<460?1:innerWidth<700?2:innerWidth<900?3:4;
-const ROT=['-2deg','1.5deg','-1deg','2deg'],BG=['var(--soft)','var(--tint)'];
-function refresh(){
-  const n=per(),pages=Math.max(1,Math.ceil(items.length/n));page=Math.min(page,pages-1);
-  const slice=items.length?items.slice(page*n,page*n+n):Array.from({length:n},()=>null);
-  $('track').innerHTML=slice.map((it,i)=>`<figure class="card" style="transform:rotate(${ROT[i%4]});margin:0"><span class="pic" style="background:${BG[i%2]}">${it?`<img src="artboard/${encodeURIComponent(it.file)}" alt="${esc(it.name||'')}" loading="lazy">`:''}</span><figcaption class="cap"><span>${esc(it?.name||'')}</span><span>${esc(it?.date||'')}</span></figcaption></figure>`).join('');
-  $('dots').innerHTML=Array.from({length:pages},(_,i)=>`<i class="${i===page?'on':''}"></i>`).join('');
-  $('prev').disabled=page===0;$('next').disabled=page>=pages-1;
+const ROT=['-2deg','1.5deg','-1deg','2deg'];
+const tr=$('track');let items=[];
+function draw(){
+  const list=items.length?items:[null,null,null,null];
+  tr.innerHTML=list.map((it,i)=>`<figure class="card" style="transform:rotate(${ROT[i%4]})"><span class="pic">${it?`<img src="artboard/${encodeURIComponent(it.file)}" alt="${esc(it.name||'')}" loading="lazy" draggable="false">`:''}</span><figcaption class="cap"><span>${esc(it?.name||'')}</span><span>${esc(it?.date||'')}</span></figcaption></figure>`).join('');
+  $('dots').innerHTML=list.map(()=>'<i></i>').join('');sync();
 }
-$('prev').onclick=()=>{page--;refresh()};$('next').onclick=()=>{page++;refresh()};
-addEventListener('resize',refresh);
-fetch('artboard/list.json?t='+Date.now()).then(r=>r.json()).then(j=>{items=j;refresh()}).catch(()=>refresh());
-refresh();
+const step=()=>{const c=tr.querySelector('.card');return c?c.getBoundingClientRect().width+18:200};
+function sync(){const i=Math.round(tr.scrollLeft/step());[...$('dots').children].forEach((d,k)=>d.classList.toggle('on',k===i));
+  $('prev').disabled=tr.scrollLeft<4;$('next').disabled=tr.scrollLeft+tr.clientWidth>=tr.scrollWidth-4}
+$('prev').onclick=()=>tr.scrollBy({left:-step()});$('next').onclick=()=>tr.scrollBy({left:step()});
+tr.addEventListener('scroll',()=>requestAnimationFrame(sync));
+tr.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();tr.scrollBy({left:e.deltaY>0?step():-step()})}},{passive:false});
+let dx=null,sl=0;
+tr.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')return;dx=e.clientX;sl=tr.scrollLeft;tr.classList.add('drag')});
+addEventListener('pointermove',e=>{if(dx===null)return;tr.scrollLeft=sl-(e.clientX-dx)});
+addEventListener('pointerup',()=>{if(dx===null)return;dx=null;tr.classList.remove('drag');const i=Math.round(tr.scrollLeft/step());tr.scrollTo({left:i*step(),behavior:'smooth'})});
+addEventListener('resize',sync);
+fetch('artboard/list.json?t='+Date.now()).then(r=>r.json()).then(j=>{items=j;draw()}).catch(draw);
+draw();
 
 </script></body></html>
