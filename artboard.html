@@ -86,7 +86,7 @@ const fmtLong=k=>{const d=parseKey(k);return `${d.getFullYear()}년 ${d.getMonth
 // 다른 위젯에서 바뀐 내용 반영
 addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh)refresh()});
 
-const TAGS=['SD','썸네일','LD 풀채색','LD 낙서'];
+const TAGS=['SD','썸네일','LD 풀채색','LD 낙서','커미션'];
 const ROT=['-2deg','1.5deg','-1deg','2deg'];
 const tr=$('track');let items=[],filter=S.get('art_filter',''),editing=false;
 if(filter&&!TAGS.includes(filter))filter='';
