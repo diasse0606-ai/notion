@@ -1,108 +1,142 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>푸우리 — Illustrator</title>
+<title>푸우리 Illustration Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-/* Layout: 포트폴리오 한 장 — 상단 띠, 이름+대표작 히어로, 소개 3단, 작품 그리드, 커미션 표, 연락처 */
+/* Layout: 갤러리 중심 포트폴리오 — 얇은 머리띠(이름·메뉴), 작품이 화면 대부분, 탭으로 Works/Goods/About/Contact */
 :root{
-  --paper:#fbfcfe; --ink:#16233a; --soft-ink:#5d6b80; --rule:#d9e3ef; --accent:#2b7fd4; --tint:#eef4fb;
-  --display:"Gowun Batang","Noto Serif KR",serif; --latin:"Cormorant Garamond","Gowun Batang",serif;
-  --body:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --paper:#ffffff; --ink:#1d2533; --sub:#7a8494; --rule:#e8edf3; --accent:#2b7fd4; --tile:#f3f6fa;
+  --latin:"Jost","Pretendard",sans-serif; --body:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#141a24;--ink:#e8eef7;--soft-ink:#9aa9bd;--rule:#2b3a4f;--accent:#6aaee6;--tint:#1a2433;color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#141a24;--ink:#e8eef7;--soft-ink:#9aa9bd;--rule:#2b3a4f;--accent:#6aaee6;--tint:#1a2433;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121418;--ink:#e9edf3;--sub:#8b95a5;--rule:#262b33;--accent:#6aaee6;--tile:#1b1f26;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121418;--ink:#e9edf3;--sub:#8b95a5;--rule:#262b33;--accent:#6aaee6;--tile:#1b1f26;color-scheme:dark}
 *{box-sizing:border-box}[hidden]{display:none!important}
 html,body{margin:0}
-body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.6;padding:0 max(20px,env(safe-area-inset-right,0px)) 40px max(20px,env(safe-area-inset-left,0px))}
-a{color:inherit}
-.wrap{max-width:1080px;margin:0 auto}
-.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid var(--rule);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft-ink)}
-.bar nav{display:flex;gap:18px;flex-wrap:wrap}
-.bar nav a{text-decoration:none}.bar nav a:hover{color:var(--accent)}
-.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,64px);align-items:end;padding:clamp(32px,6vw,72px) 0 clamp(28px,4vw,48px);border-bottom:1px solid var(--rule)}
-@media (max-width:640px){.hero{grid-template-columns:1fr}}
-.eyebrow{font-family:var(--latin);font-style:italic;font-size:20px;color:var(--accent)}
-.name{font-family:var(--display);font-weight:700;font-size:clamp(52px,10vw,104px);line-height:.95;letter-spacing:-.02em;margin:10px 0 18px;text-wrap:balance}
-.intro{font-size:16px;max-width:30em;color:var(--soft-ink);margin:0}
-.feat{margin:0;position:relative}
-.feat img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;border-radius:2px}
-.feat figcaption{display:flex;justify-content:space-between;font-size:11.5px;letter-spacing:.12em;color:var(--soft-ink);padding-top:8px;text-transform:uppercase}
-.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--rule)}
-@media (max-width:640px){.facts{grid-template-columns:1fr}}
-.fact{padding:22px 20px 22px 0;display:flex;flex-direction:column;gap:6px}
-.fact+.fact{padding-left:20px;border-left:1px solid var(--rule)}
-@media (max-width:640px){.fact+.fact{border-left:none;border-top:1px solid var(--rule);padding-left:0}}
-.lab{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft-ink)}
-.val{font-family:var(--display);font-size:18px}
-.sw{display:flex;gap:8px;align-items:center}
-.sw button{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);padding:0;cursor:pointer;background:var(--tint)}
-section{padding:clamp(28px,5vw,56px) 0;border-bottom:1px solid var(--rule)}
-.sh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:22px}
-.sh h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(24px,4vw,34px)}
-.sh span{font-family:var(--latin);font-style:italic;font-size:18px;color:var(--soft-ink)}
-.works{columns:3 220px;column-gap:14px}
-.works figure{margin:0 0 14px;break-inside:avoid;position:relative;overflow:hidden;border-radius:2px;background:var(--tint)}
-.works img{width:100%;display:block;transition:transform .5s}
-.works figure:hover img{transform:scale(1.03)}
-.works figcaption{position:absolute;left:0;right:0;bottom:0;padding:18px 12px 10px;font-size:12px;letter-spacing:.08em;color:#fff;background:linear-gradient(transparent,rgba(10,20,35,.6));opacity:0;transition:opacity .3s}
-.works figure:hover figcaption{opacity:1}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.7;padding:0 max(20px,env(safe-area-inset-right,0px)) 0 max(20px,env(safe-area-inset-left,0px))}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0}
+:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1100px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:28px 0 24px}
+.logo{display:flex;flex-direction:column;line-height:1.2}
+.logo b{font-size:20px;font-weight:600;letter-spacing:.04em}
+.logo span{font-family:var(--latin);font-weight:300;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--sub)}
+nav{display:flex;gap:clamp(14px,3vw,30px)}
+nav button{font-family:var(--latin);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);padding:4px 0;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--ink);border-bottom-color:var(--ink)}
+.lead{padding:clamp(28px,6vw,64px) 0 clamp(28px,5vw,48px);display:flex;flex-direction:column;gap:6px}
+.lead small{font-family:var(--latin);font-weight:300;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub)}
+.lead p{margin:0;font-size:15px}
+.topics{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:28px;font-size:13px}
+.topics b{font-family:var(--latin);font-weight:500;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);flex:none}
+.view{animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rows{display:flex;flex-direction:column;gap:clamp(10px,1.6vw,18px)}
+.row{display:flex;gap:clamp(10px,1.6vw,18px);width:100%}
+.row .piece{min-width:0;height:100%}
+@media (max-width:560px){.row{flex-direction:column;aspect-ratio:auto!important}.row .piece{flex:none!important;height:auto}.row .piece img{height:auto}}
+.piece{position:relative;overflow:hidden;background:var(--tile);cursor:zoom-in;display:block}
+.piece img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease,opacity .4s}
+.piece:hover img{transform:scale(1.025)}
+.piece .cap{position:absolute;left:12px;bottom:10px;font-family:var(--latin);font-size:11px;letter-spacing:.16em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
+.piece:hover .cap{opacity:1}
+.goods{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:clamp(12px,2vw,22px)}
+.good{display:flex;flex-direction:column;gap:10px;cursor:zoom-in}
+.good .ph{aspect-ratio:1;background:var(--tile);display:grid;place-items:center;overflow:hidden}
+.good img{width:84%;height:84%;object-fit:contain;transition:transform .5s}
+.good:hover img{transform:scale(1.04)}
+.good span{font-size:13px;text-align:center}
+.about{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
+@media (max-width:640px){.about{grid-template-columns:1fr}}
+.about .pic{aspect-ratio:1;background:var(--tile);overflow:hidden;display:grid;place-items:center}
+.about .pic img{width:100%;height:100%;object-fit:cover}
+.about .pic img.cloud{width:50%;height:auto;object-fit:contain}
+.about h2{margin:0 0 4px;font-size:26px;font-weight:600}
+.about .en{font-family:var(--latin);font-weight:300;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub)}
+dl{margin:28px 0 0;display:grid;grid-template-columns:auto 1fr;gap:12px 28px}
+dt{font-family:var(--latin);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--sub);padding-top:2px}
+dd{margin:0}
+.dots{display:flex;gap:8px}
+.dots i{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule)}
+.block{max-width:720px}
+.block h3{font-family:var(--latin);font-weight:400;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub);margin:0 0 16px}
+.block+.block{margin-top:48px}
+.req{font-size:15px;margin:0}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft-ink);font-weight:500;text-align:left;padding:0 0 10px;border-bottom:1px solid var(--ink)}
-td{padding:16px 0;border-bottom:1px solid var(--rule);vertical-align:top}
-td:first-child{font-family:var(--display);font-size:18px;font-weight:700;width:34%}
-td.price{font-size:17px;font-weight:600}
-td.muted{color:var(--soft-ink);font-size:13px}
-.tw{overflow-x:auto}
-details{margin-top:18px}
-details summary{cursor:pointer;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-details p{white-space:pre-line;color:var(--soft-ink);margin:12px 0 0;max-width:42em}
-.contact{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0}
-.contact a{display:flex;justify-content:space-between;align-items:baseline;gap:10px;text-decoration:none;padding:16px 0;border-bottom:1px solid var(--rule);margin-right:24px}
-.contact a b{font-family:var(--display);font-size:20px}
-.contact a span{font-size:12.5px;color:var(--soft-ink)}
-.contact a:hover b{color:var(--accent)}
-.contact a i{font-style:normal;color:var(--accent)}
-footer{padding:22px 0 0;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft-ink);display:flex;justify-content:space-between}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:6px 14px;font-size:12.5px;border-radius:2px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+td{padding:14px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{font-weight:600;width:40%}
+td.s{color:var(--sub);font-size:13px}
+.notice{white-space:pre-line;color:var(--sub);margin:16px 0 0}
+.links a{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--rule);transition:padding .3s}
+.links a:hover{padding-left:6px;color:var(--accent)}
+.links b{font-family:var(--latin);font-weight:400;font-size:17px;letter-spacing:.06em}
+.links span{font-size:12.5px;color:var(--sub)}
+footer{margin-top:clamp(56px,9vw,110px);padding:26px 0 calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--latin);font-size:11px;letter-spacing:.2em;color:var(--sub)}
+footer nav a{font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+footer nav a:hover{color:var(--ink)}
+.box{position:fixed;inset:0;background:rgba(10,12,16,.88);display:grid;place-items:center;padding:24px;z-index:20;cursor:zoom-out;animation:fade .25s}
+.box img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.box .x{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(18px + env(safe-area-inset-right,0px));color:#fff;font-family:var(--latin);font-size:12px;letter-spacing:.24em}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body><div class="wrap">
-<div class="bar"><span>Illustration Portfolio</span><nav id="nav"></nav></div>
-<div class="hero"><div><div class="eyebrow">Illustrator</div><h1 class="name" id="nm"></h1><p class="intro" id="intro"></p></div>
-<figure class="feat" id="feat" hidden><img id="featImg" alt=""><figcaption><span id="featName"></span><span id="featDate"></span></figcaption></figure></div>
-<div class="facts"><div class="fact"><span class="lab">Specialty</span><span class="val" id="main"></span></div>
-<div class="fact"><span class="lab">Keywords</span><span class="val" id="kw"></span></div>
-<div class="fact"><span class="lab">Palette</span><span class="sw" id="pal"></span></div></div>
-<section><div class="sh"><h2>작품</h2><span>Selected Works</span></div><div class="works" id="works"></div></section>
-<section><div class="sh"><h2>커미션</h2><span>Commission</span></div>
-<div class="tw"><table><thead><tr><th>작업</th><th>가격</th><th>기간</th><th>비고</th></tr></thead><tbody id="prices"></tbody></table></div>
-<details id="noticeBox" hidden><summary>커미션 안내</summary><p id="notice"></p></details></section>
-<section style="border-bottom:none"><div class="sh"><h2>연락처</h2><span>Contact</span></div><div class="contact" id="links"></div></section>
-<footer><span id="foot"></span><span>Made with Clip Studio Paint</span></footer>
-</div><div class="toast" id="toast" hidden></div>
+<header><a class="logo" href="#works" data-v="works"><b id="logo"></b><span>Illustration Portfolio</span></a>
+<nav id="nav"><button data-v="works">Works</button><button data-v="goods">Goods</button><button data-v="about">About</button><button data-v="contact">Contact</button></nav></header>
+<div class="lead"><small>Freelance Illustrator</small><p id="intro"></p></div>
+<div class="topics" id="topics" hidden><b>Topics</b><span id="topicTxt"></span></div>
+<main id="main"></main>
+<footer><span id="copy"></span><nav id="sns"></nav></footer>
+</div>
+<div class="box" id="box" hidden><img id="boxImg" alt=""><span class="x">Close</span></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function brand(b){
-  document.title=(b.name||'')+' — Illustrator';
-  $('nm').textContent=b.name||'';$('intro').textContent=b.intro||'';$('main').textContent=b.main||'—';
-  $('kw').textContent=(b.keywords||[]).join(' · ')||'—';
-  const pal=(b.palette||[]).filter(c=>/^#[0-9a-f]{3,8}$/i.test(c.hex||''));
-  $('pal').innerHTML=pal.length?pal.map(c=>`<button style="background:${c.hex}" data-hex="${esc(c.hex)}" aria-label="${esc(c.role)} ${esc(c.hex)} 복사" title="${esc(c.role)} ${esc(c.hex)}"></button>`).join(''):'<span class="val">—</span>';
-  $('prices').innerHTML=(b.prices||[]).map(p=>`<tr><td>${esc(p.type)}</td><td class="price">${esc(p.price||'—')}</td><td class="muted">${esc(p.period||'—')}</td><td class="muted">${esc(p.note||'')}</td></tr>`).join('');
-  $('noticeBox').hidden=!b.notice;$('notice').textContent=b.notice||'';
-  $('links').innerHTML=(b.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.label)}</b><span>${esc(l.sub||'')} <i>↗</i></span></a>`).join('');
-  $('nav').innerHTML=(b.links||[]).slice(0,2).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('');
-  $('foot').textContent='© '+new Date().getFullYear()+' '+(b.name||'');
+let B={},W=[],G=[];
+const VIEWS=['works','goods','about','contact'];
+function ratioOf(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i.naturalWidth/i.naturalHeight);i.onerror=()=>r(.75);i.src=src})}
+async function works(){
+  const list=await Promise.all(W.map(async w=>({...w,src:'artboard/'+encodeURIComponent(w.file),r:await ratioOf('artboard/'+encodeURIComponent(w.file))})));
+  const rows=[list.slice(0,3)];for(let i=3;i<list.length;i+=2)rows.push(list.slice(i,i+2));
+  if(rows.length>1&&rows[rows.length-1].length===1)rows[rows.length-2].push(rows.pop()[0]);
+  return '<div class="rows">'+rows.filter(r=>r.length).map(r=>`<div class="row" style="aspect-ratio:${r.reduce((t,w)=>t+w.r,0).toFixed(3)}">${r.map(w=>`<a class="piece" href="#" data-src="${w.src}" style="flex:${w.r.toFixed(3)} 1 0"><img src="${w.src}" alt="${esc(w.name||'')}" loading="lazy">${w.name||w.date?`<span class="cap">${esc(w.name||'')} ${esc(w.date||'')}</span>`:''}</a>`).join('')}</div>`).join('')+'</div>';
 }
-function works(list){
-  if(!list.length)return;const f=list[0];
-  $('feat').hidden=false;$('featImg').src='artboard/'+encodeURIComponent(f.file);$('featName').textContent=f.name||'';$('featDate').textContent=f.date||'';
-  $('works').innerHTML=list.map(w=>`<figure><img src="artboard/${encodeURIComponent(w.file)}" alt="${esc(w.name||'')}" loading="lazy">${w.name||w.date?`<figcaption>${esc(w.name||'')} ${esc(w.date||'')}</figcaption>`:''}</figure>`).join('');
+function goods(){return '<div class="goods">'+G.map(n=>{const s='goods/'+encodeURIComponent(n)+'.png';return `<a class="good" href="#" data-src="${s}"><span class="ph"><img src="${s}" alt="${esc(n)}" loading="lazy"></span><span>${esc(n.replace(/\s*\(.*\)\s*$/,''))}</span></a>`}).join('')+'</div>'}
+function about(){
+  const pal=(B.palette||[]).filter(c=>/^#[0-9a-f]{3,8}$/i.test(c.hex||''));
+  return `<div class="about"><div class="pic"><img src="profile.png" alt="" onerror="this.onerror=null;this.className='cloud';this.src='cloud.png'"></div>
+  <div><h2>${esc(B.name)}</h2><span class="en">Illustrator</span>
+  <dl><dt>Profile</dt><dd>${esc(B.intro)}</dd>
+  ${B.main?`<dt>Specialty</dt><dd>${esc(B.main)}</dd>`:''}
+  ${(B.keywords||[]).length?`<dt>Keywords</dt><dd>${esc(B.keywords.join(' · '))}</dd>`:''}
+  ${pal.length?`<dt>Palette</dt><dd class="dots">${pal.map(c=>`<i style="background:${c.hex}" title="${esc(c.role)} ${esc(c.hex)}"></i>`).join('')}</dd>`:''}
+  <dt>Tools</dt><dd>Clip Studio Paint</dd></dl></div></div>`}
+function contact(){
+  const pr=(B.prices||[]).filter(p=>p.type);
+  return `<div class="block"><h3>Commission</h3>${B.request?`<p class="req">${esc(B.request)}</p>`:''}
+  ${pr.length?`<table>${pr.map(p=>`<tr><td>${esc(p.type)}</td><td>${esc(p.price||'문의')}</td><td class="s">${esc([p.period,p.note].filter(Boolean).join(' · '))}</td></tr>`).join('')}</table>`:''}
+  ${B.notice?`<p class="notice">${esc(B.notice)}</p>`:''}</div>
+  <div class="block"><h3>Contact</h3><div class="links">${(B.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.label)}</b><span>${esc(l.sub||'')} ↗</span></a>`).join('')}</div></div>`}
+async function show(v){
+  if(!VIEWS.includes(v))v='works';
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  const html=v==='works'?await works():v==='goods'?goods():v==='about'?about():contact();
+  $('main').innerHTML=`<div class="view">${html}</div>`;
+  try{history.replaceState(null,'','#'+v)}catch(e){}
 }
-$('pal').onclick=e=>{const s=e.target.closest('button');if(!s)return;navigator.clipboard?.writeText(s.dataset.hex).then(()=>{const t=$('toast');t.textContent=s.dataset.hex.toUpperCase()+' 복사됨';t.hidden=false;setTimeout(()=>t.hidden=true,1400)},()=>{})};
-fetch('brand.json?t='+Date.now()).then(r=>r.json()).then(brand).catch(()=>{});
-fetch('artboard/list.json?t='+Date.now()).then(r=>r.json()).then(works).catch(()=>{});
+document.addEventListener('click',e=>{
+  const n=e.target.closest('[data-v]');if(n){e.preventDefault();show(n.dataset.v);return}
+  const p=e.target.closest('[data-src]');if(p){e.preventDefault();$('boxImg').src=p.dataset.src;$('box').hidden=false;return}
+  if(e.target.closest('#box'))$('box').hidden=true;
+});
+addEventListener('keydown',e=>{if(e.key==='Escape')$('box').hidden=true});
+Promise.all([fetch('brand.json?t='+Date.now()).then(r=>r.json()).catch(()=>({})),fetch('artboard/list.json?t='+Date.now()).then(r=>r.json()).catch(()=>[]),fetch('goods/list.json?t='+Date.now()).then(r=>r.json()).catch(()=>[])]).then(([b,w,g])=>{
+  B=b;W=w;G=g;$('logo').textContent=b.name||'';$('intro').textContent=b.intro||'';document.title=(b.name||'')+' Illustration Portfolio';
+  if(b.topic){$('topics').hidden=false;$('topicTxt').textContent=b.topic}
+  $('copy').textContent='© '+(b.name||'')+' · 무단 사용 및 2차 가공 금지';
+  $('sns').innerHTML=(b.links||[]).slice(0,2).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('');
+  $('sns').style.cssText='display:flex;gap:18px';
+  show((location.hash||'').slice(1));
+});
 </script></body></html>
