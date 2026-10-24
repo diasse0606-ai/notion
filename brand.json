@@ -4,19 +4,58 @@
   "main": "캐주얼 서브컬쳐풍 미소녀",
   "keywords": [],
   "palette": [
-    {"role": "메인", "name": "", "hex": ""},
-    {"role": "서브", "name": "", "hex": ""},
-    {"role": "포인트", "name": "", "hex": ""}
+    {
+      "role": "메인",
+      "name": "",
+      "hex": ""
+    },
+    {
+      "role": "서브",
+      "name": "",
+      "hex": ""
+    },
+    {
+      "role": "포인트",
+      "name": "",
+      "hex": ""
+    }
   ],
   "links": [
-    {"label": "X", "sub": "@PpungUli41992", "url": "https://x.com/PpungUli41992"},
-    {"label": "Pixiv", "sub": "79327470", "url": "https://www.pixiv.net/users/79327470"},
-    {"label": "크레페", "sub": "커미션", "url": "https://crepe.cm/ko/@Puul1c"},
-    {"label": "아트머그", "sub": "커미션", "url": "https://artmug.kr/index.php?channel=list&field=brand&search=Zm91cnkwNjA2"}
+    {
+      "label": "X",
+      "sub": "@PpungUli41992",
+      "url": "https://x.com/PpungUli41992"
+    },
+    {
+      "label": "Pixiv",
+      "sub": "79327470",
+      "url": "https://www.pixiv.net/users/79327470"
+    },
+    {
+      "label": "크레페",
+      "sub": "커미션",
+      "url": "https://crepe.cm/ko/@Puul1c"
+    },
+    {
+      "label": "아트머그",
+      "sub": "커미션",
+      "url": "https://artmug.kr/index.php?channel=list&field=brand&search=Zm91cnkwNjA2"
+    }
   ],
   "prices": [
-    {"type": "LD 풀채색", "price": "", "period": "", "note": ""},
-    {"type": "SD 풀채색", "price": "", "period": "", "note": ""}
+    {
+      "type": "LD 풀채색",
+      "price": "",
+      "period": "",
+      "note": ""
+    },
+    {
+      "type": "SD 풀채색",
+      "price": "",
+      "period": "",
+      "note": ""
+    }
   ],
-  "notice": ""
+  "notice": "",
+  "defaultStatus": "open"
 }
