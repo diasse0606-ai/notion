@@ -59,5 +59,14 @@
   "notice": "",
   "slotsPerMonth": 2,
   "slotMonths": 6,
-  "slots": {}
+  "slots": {
+    "2026.11": [
+      "booked",
+      "free"
+    ],
+    "2026.12": [
+      "booked",
+      "booked"
+    ]
+  }
 }
