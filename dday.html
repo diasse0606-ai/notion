@@ -89,6 +89,7 @@ const fmtLong=k=>{const d=parseKey(k);return `${d.getFullYear()}년 ${d.getMonth
 // 다른 위젯에서 바뀐 내용 반영
 addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh)refresh()});
 
+const midKey=()=>keyOf(new Date());
 const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
 async function loadProjects(){
   if(!API)return;
@@ -96,7 +97,7 @@ async function loadProjects(){
     if(j.projects){S.set('proj',j.projects);refresh()}}catch(e){}
 }
 function refresh(){
-  const today=todayKey(),n=new Date();
+  const today=midKey(),n=new Date();
   $('date').textContent=fmtLong(today);$('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
   const mine=S.get('ddays',[]).map(e=>Object.assign({kind:'mine'},e));
   const proj=S.get('proj',[]).map(p=>({kind:'proj',name:p.name,date:p.date,url:p.url,area:p.area}));
@@ -110,7 +111,7 @@ function refresh(){
 }
 loadProjects();setInterval(loadProjects,10*60*1000);addEventListener('focus',loadProjects);
 $('chips').onclick=e=>{const x=e.target.closest('.x');if(!x)return;S.set('ddays',S.get('ddays',[]).filter(v=>v.id!=x.dataset.id));refresh()};
-$('add').onclick=()=>{const f=$('form');f.hidden=!f.hidden;if(!f.hidden){$('dt').value=addDays(todayKey(),7);$('nm').focus()}};
+$('add').onclick=()=>{const f=$('form');f.hidden=!f.hidden;if(!f.hidden){$('dt').value=addDays(midKey(),7);$('nm').focus()}};
 $('form').onsubmit=e=>{e.preventDefault();const name=$('nm').value.trim(),date=$('dt').value;if(!name||!date)return;
   const l=S.get('ddays',[]);l.push({id:Date.now(),name,date});S.set('ddays',l);$('nm').value='';$('form').hidden=true;refresh()};
 refresh();setInterval(refresh,15000);
