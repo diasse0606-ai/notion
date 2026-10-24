@@ -56,8 +56,8 @@ button{cursor:pointer}
 .pic .tg{position:absolute;left:6px;top:6px;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:999px;font-size:10.5px;padding:1px 7px}
 .cap{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;padding:0 2px;min-height:1.2em}
 .cap span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pick{display:flex;flex-wrap:wrap;gap:4px}
-.pick button{flex:1 1 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;font-size:10.5px;padding:2px 4px;color:var(--muted);white-space:nowrap}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pick button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;font-size:10.5px;padding:2px 4px;color:var(--muted);white-space:nowrap}
 .pick button[aria-pressed=true]{background:var(--deep);border-color:var(--deep);color:var(--knob)}
 .empty{flex:1;text-align:center;color:var(--muted);font-size:13px;padding:40px 0}
 .dots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
@@ -86,24 +86,25 @@ const fmtLong=k=>{const d=parseKey(k);return `${d.getFullYear()}년 ${d.getMonth
 // 다른 위젯에서 바뀐 내용 반영
 addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh)refresh()});
 
-const TAGS=['SD 썸네일','LD 풀채색','LD 낙서'];
+const TAGS=['SD','썸네일','LD 풀채색','LD 낙서'];
 const ROT=['-2deg','1.5deg','-1deg','2deg'];
 const tr=$('track');let items=[],filter=S.get('art_filter',''),editing=false;
 if(filter&&!TAGS.includes(filter))filter='';
-const tagOf=it=>{const m=S.get('art_tags',{});return it.file in m?m[it.file]:(it.tag||'')};
-function setTag(file,t){const m=S.get('art_tags',{});const it=items.find(x=>x.file===file);m[file]=(tagOf(it)===t)?'':t;S.set('art_tags',m);draw(true)}
+const norm=v=>(Array.isArray(v)?v:v?[v]:[]).flatMap(x=>x==='SD 썸네일'?['SD','썸네일']:[x]).filter(x=>TAGS.includes(x));
+const tagsOf=it=>{const m=S.get('art_tags',{});return norm(it.file in m?m[it.file]:it.tags||it.tag)};
+function setTag(file,t){const m=S.get('art_tags',{});const it=items.find(x=>x.file===file);let l=tagsOf(it);l=l.includes(t)?l.filter(x=>x!==t):TAGS.filter(x=>x===t||l.includes(x));m[file]=l;S.set('art_tags',m);draw(true)}
 function tabs(){
-  const n=t=>items.filter(it=>tagOf(it)===t).length;
+  const n=t=>items.filter(it=>tagsOf(it).includes(t)).length;
   $('tabs').innerHTML=[['','전체',items.length]].concat(TAGS.map(t=>[t,t,n(t)])).map(([v,l,c])=>`<button class="tab" data-f="${esc(v)}" aria-pressed="${filter===v}">${esc(l)}<b>${c}</b></button>`).join('');
 }
 function draw(keep){
   tabs();
   const left=tr.scrollLeft;
-  const shown=items.filter(it=>!filter||tagOf(it)===filter);
+  const shown=items.filter(it=>!filter||tagsOf(it).includes(filter));
   const list=items.length?shown:[null,null,null,null];
-  tr.innerHTML=!list.length?'<div class="empty">—</div>':list.map((it,i)=>{const t=it?tagOf(it):'';
-    return `<figure class="card" style="transform:rotate(${ROT[i%4]})"><span class="pic">${it?`<img src="artboard/${encodeURIComponent(it.file)}" alt="${esc(it.name||'')}" loading="lazy" draggable="false">`:''}${t&&!editing&&!filter?`<span class="tg">${esc(t)}</span>`:''}</span>`+
-    (editing&&it?`<div class="pick">${TAGS.map(x=>`<button data-file="${esc(it.file)}" data-t="${esc(x)}" aria-pressed="${t===x}">${esc(x)}</button>`).join('')}</div>`:'')+
+  tr.innerHTML=!list.length?'<div class="empty">—</div>':list.map((it,i)=>{const t=it?tagsOf(it):[];
+    return `<figure class="card" style="transform:rotate(${ROT[i%4]})"><span class="pic">${it?`<img src="artboard/${encodeURIComponent(it.file)}" alt="${esc(it.name||'')}" loading="lazy" draggable="false">`:''}${t.length&&!editing&&!filter?`<span class="tg">${esc(t.join(' · '))}</span>`:''}</span>`+
+    (editing&&it?`<div class="pick">${TAGS.map(x=>`<button data-file="${esc(it.file)}" data-t="${esc(x)}" aria-pressed="${t.includes(x)}">${esc(x)}</button>`).join('')}</div>`:'')+
     `<figcaption class="cap"><span>${esc(it?.name||'')}</span><span>${esc(it?.date||'')}</span></figcaption></figure>`}).join('');
   $('dots').innerHTML=list.map(()=>'<i></i>').join('');
   tr.style.scrollBehavior='auto';tr.scrollLeft=keep?left:0;tr.style.scrollBehavior='';sync();
