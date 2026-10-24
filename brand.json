@@ -57,5 +57,7 @@
     }
   ],
   "notice": "",
-  "defaultStatus": "open"
+  "slotsPerMonth": 2,
+  "slotMonths": 6,
+  "slots": {}
 }

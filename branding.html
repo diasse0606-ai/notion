@@ -6,7 +6,7 @@
 /* Layout: 갤러리 중심 포트폴리오 — 얇은 머리띠, 이름+자동으로 넘어가는 대표작, 탭(Works/Goods/About/Contact) */
 :root{
   --paper:#ffffff; --ink:#18202c; --sub:#8a93a1; --rule:#eaeef3; --accent:#2b7fd4; --tile:#f4f6f9;
-  --open:#2b7fd4; --consult:#e3a82b; --closed:#c5ccd6;
+  --open:#2b7fd4; --consult:#e3a82b; --closed:#c5ccd6; --slot:#78a9c7; --rush:#ef6b88;
   --f:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121418;--ink:#eceff4;--sub:#8b95a5;--rule:#252a32;--accent:#6aaee6;--tile:#1b1f26;--closed:#3a414c;color-scheme:dark}}
@@ -67,7 +67,29 @@ dl{margin:26px 0 0;display:grid;grid-template-columns:auto 1fr;gap:12px 28px}
 dt{padding-top:3px}
 dd{margin:0}
 .dots{display:flex;gap:8px}.dots i{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule)}
-.ct{max-width:820px}
+.ct{max-width:920px}
+.slot{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(20px,4vw,48px);background:var(--paper);border:1px solid var(--rule);padding:clamp(24px,4vw,44px);clip-path:polygon(44px 0,100% 0,100% 100%,0 100%,0 44px);position:relative;margin-bottom:36px}
+.slot::before{content:"";position:absolute;left:0;top:0;width:62px;height:1px;background:var(--rule);transform-origin:0 0;transform:translate(0,44px) rotate(-45deg)}
+@media (max-width:640px){.slot{grid-template-columns:1fr}}
+.sl{display:flex;flex-direction:column;justify-content:center;gap:16px;border-right:1px solid var(--rule);padding-right:clamp(20px,4vw,48px)}
+@media (max-width:640px){.sl{border-right:none;padding-right:0}}
+.sc{color:var(--slot)}
+.sl h2{margin:0;font-size:clamp(28px,4.4vw,40px);font-weight:800;line-height:1.2;letter-spacing:-.04em}
+.lg{display:flex;flex-wrap:wrap;gap:6px}
+.lg span{display:flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:999px;padding:4px 12px 4px 10px;font-size:12px;font-weight:600;color:var(--sub)}
+.lg i,.sd i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.sd i{width:16px;height:16px}
+i.free{box-shadow:inset 0 0 0 1.5px var(--slot)}
+i.booked{background:var(--slot)}
+i.rush{background:var(--rush)}
+.sr{list-style:none;margin:0;padding:0;align-self:center}
+.sr li{display:grid;grid-template-columns:64px 1fr auto;align-items:center;padding:13px 0;border-top:1px solid var(--rule)}
+.sr li:last-child{border-bottom:1px solid var(--rule)}
+.sr b{font-size:15px;font-weight:800}
+.sd{display:flex;gap:8px}
+.sr em{font-style:normal;font-size:12px;font-weight:600;color:var(--sub)}
+.sr em.ok{color:var(--slot)}
+
 .ct h2{margin:0 0 6px;font-size:clamp(32px,6vw,52px);font-weight:800;letter-spacing:-.04em}
 .blk{margin-top:30px}
 .ct .blk:first-child{margin-top:0}
@@ -165,14 +187,24 @@ function months(list){
   const m={};list.forEach(a=>m[a.month]=a.status);const out=[],d=new Date();d.setDate(1);
   for(let i=0;i<12;i++){const k=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0');out.push({month:k,status:m[k]||B.defaultStatus||''});d.setMonth(d.getMonth()+1)}
   return out}
+function slotCard(){
+  const per=B.slotsPerMonth||2,S=B.slots||{},rows=[],d=new Date();d.setDate(1);
+  for(let i=0;i<(B.slotMonths||6);i++){
+    const k=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0');
+    const st=(S[k]||[]).slice(0,per+2);while(st.length<per)st.push('free');
+    const freeN=st.filter(x=>x==='free').length;
+    rows.push(`<li><b>${d.getMonth()+1}월</b><span class="sd">${st.map(x=>`<i class="${x}" title="${x==='free'?'작업 가능':x==='rush'?'빠른 마감':'예약 마감'}"></i>`).join('')}</span><em class="${freeN?'ok':''}">${freeN?'가능':'마감'}</em></li>`);
+    d.setMonth(d.getMonth()+1)}
+  return `<div class="slot"><div class="sl"><span class="cap sc">+ Commission Slot</span><h2>예약 슬롯<br>현황 안내</h2>
+   <div class="lg"><span><i class="free"></i>작업 가능</span><span><i class="booked"></i>예약 마감</span><span><i class="rush"></i>빠른 마감</span></div></div>
+   <ul class="sr">${rows.join('')}</ul></div>`}
 function contact(){
-  const pr=(B.prices||[]).filter(p=>p.type),notes=B.contactNotes||[],no=B.notAccepted||[],av=months(B.availability||[]);
+  const pr=(B.prices||[]).filter(p=>p.type),notes=B.contactNotes||[],no=B.notAccepted||[],av=[];
   const label={open:'접수 중',consult:'상담',closed:'마감'};
   const opt=(arr)=>arr.map(o=>`<option>${esc(o)}</option>`).join('');
   return `<div class="ct"><div>
   ${notes.length||no.length?`<div class="blk"><span class="cap">Notes</span><ul class="notes">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}${no.map(n=>`<li class="no">받지 않는 작업 · ${esc(n)}</li>`).join('')}</ul></div>`:''}
-  ${av.length?`<div class="blk"><span class="cap">Current Availability</span><div class="avail">${av.map((a,i)=>`<div class="${i===0?'now':''}"><span>${esc(a.month.slice(2))}</span><i class="${esc(a.status)}" title="${esc(label[a.status]||'')}"></i></div>`).join('')}</div>
-    <div class="legend"><span><i style="background:var(--open)"></i>접수 중</span><span><i style="background:var(--consult)"></i>상담</span><span><i style="background:var(--closed)"></i>마감</span></div></div>`:''}
+  ${slotCard()}
   ${pr.length?`<div class="blk"><span class="cap">Price</span><table>${pr.map(p=>`<tr><td>${esc(p.type)}</td><td>${esc(p.price||'문의')}</td><td class="s">${esc([p.period,p.note].filter(Boolean).join(' · '))}</td></tr>`).join('')}</table></div>`:''}
   <div class="blk"><span class="cap">Links</span><div class="links">${(B.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}</div></div></div>
   </div>`}
