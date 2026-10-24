@@ -1,14 +1,1 @@
-{
- "classes": [
-  {
-   "id": "propic",
-   "name": "프로픽 - 눅쌤",
-   "notes": [
-    {
-     "week": 1,
-     "file": "propic-01.json"
-    }
-   ]
-  }
- ]
-}
+{"classes": [{"id": "propic", "name": "프로픽 - 눅쌤", "notes": [{"week": 1, "file": "propic-01.json"}, {"week": 2, "file": "propic-02.json"}, {"week": 3, "file": "propic-03.json"}, {"week": 4, "file": "propic-04.json"}, {"week": 5, "file": "propic-05.json"}, {"week": 6, "file": "propic-06.json"}, {"week": 7, "file": "propic-07.json"}, {"week": 8, "file": "propic-08.json"}, {"week": 9, "file": "propic-09.json"}, {"week": 10, "file": "propic-10.json"}]}]}
