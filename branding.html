@@ -78,6 +78,8 @@ dd{margin:0}
 .notes li.no{color:var(--sub)}
 .avail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .avail div{border:1px solid var(--rule);padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.avail div.now{border-color:var(--ink);font-weight:700}
+.avail div.now span::after{content:' · 이번 달';font-weight:400;color:var(--sub);font-size:11px}
 .avail i{height:4px;border-radius:2px;background:transparent;box-shadow:inset 0 0 0 1px var(--rule)}
 .avail i.closed{background:var(--closed);box-shadow:none}
 .avail i.open{background:var(--open);box-shadow:none}.avail i.consult{background:var(--consult);box-shadow:none}
@@ -169,7 +171,7 @@ function contact(){
   const opt=(arr)=>arr.map(o=>`<option>${esc(o)}</option>`).join('');
   return `<div class="ct"><div>
   ${notes.length||no.length?`<div class="blk"><span class="cap">Notes</span><ul class="notes">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}${no.map(n=>`<li class="no">받지 않는 작업 · ${esc(n)}</li>`).join('')}</ul></div>`:''}
-  ${av.length?`<div class="blk"><span class="cap">Current Availability</span><div class="avail">${av.map(a=>`<div><span>${esc(a.month.slice(2))}</span><i class="${esc(a.status)}" title="${esc(label[a.status]||'')}"></i></div>`).join('')}</div>
+  ${av.length?`<div class="blk"><span class="cap">Current Availability</span><div class="avail">${av.map((a,i)=>`<div class="${i===0?'now':''}"><span>${esc(a.month.slice(2))}</span><i class="${esc(a.status)}" title="${esc(label[a.status]||'')}"></i></div>`).join('')}</div>
     <div class="legend"><span><i style="background:var(--open)"></i>접수 중</span><span><i style="background:var(--consult)"></i>상담</span><span><i style="background:var(--closed)"></i>마감</span></div></div>`:''}
   ${pr.length?`<div class="blk"><span class="cap">Price</span><table>${pr.map(p=>`<tr><td>${esc(p.type)}</td><td>${esc(p.price||'문의')}</td><td class="s">${esc([p.period,p.note].filter(Boolean).join(' · '))}</td></tr>`).join('')}</table></div>`:''}
   <div class="blk"><span class="cap">Links</span><div class="links">${(B.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}</div></div></div>
