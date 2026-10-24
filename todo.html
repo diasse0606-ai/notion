@@ -83,8 +83,28 @@ addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh
 
 let today=todayKey(),cur=today,todos=[];
 const short=k=>{const d=parseKey(k);return `${d.getMonth()+1}.${d.getDate()} (${WEEK[d.getDay()]})`};
-function save(){S.set('todos_'+cur,todos)}
-function show(k){cur=k;todos=S.get('todos_'+cur,[]);$('date').textContent=short(cur);$('pick').value=cur;$('backRow').hidden=cur===today;render()}
+/* 구글 시트 'TO DO' 탭과 동기화 */
+const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
+const typing=()=>document.activeElement&&document.activeElement.classList.contains('txt');
+const pushT={};
+function save(){S.set('todos_'+cur,todos);S.set('todo_ts_'+cur,Date.now());S.set('todo_dirty_'+cur,1);
+  if(!API)return;const k=cur;clearTimeout(pushT[k]);pushT[k]=setTimeout(()=>push(k),700)}
+async function push(k){
+  const items=S.get('todos_'+k,[]).filter(t=>String(t.text||'').trim()),ts=S.get('todo_ts_'+k,Date.now());
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'todo',date:k,items,ts})});
+    const j=await r.json();if(j.ok&&S.get('todo_ts_'+k,0)===ts)S.set('todo_dirty_'+k,0)}catch(e){}
+}
+async function pull(k){
+  if(!API)return;
+  try{const r=await fetch(API+'?what=todo&date='+k+'&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();if(j.error)return;
+    const lt=S.get('todo_ts_'+k,0),dirty=S.get('todo_dirty_'+k,0),local=S.get('todos_'+k,[]);
+    if(j.items===null){if(local.some(t=>String(t.text||'').trim()))push(k);return}
+    if(dirty&&lt>=j.ts){push(k);return}
+    if(j.ts>=lt&&JSON.stringify(j.items)!==JSON.stringify(local.filter(t=>String(t.text||'').trim()))){
+      S.set('todos_'+k,j.items);S.set('todo_ts_'+k,j.ts);S.set('todo_dirty_'+k,0);if(k===cur&&!typing())show(cur,true)}
+  }catch(e){}
+}
+function show(k,quiet){cur=k;todos=S.get('todos_'+cur,[]);$('date').textContent=short(cur);$('pick').value=cur;$('backRow').hidden=cur===today;render();if(!quiet)pull(cur)}
 function render(focusId,end){
   const sh=$('sheet');sh.innerHTML='';
   if(!todos.length)todos.push({id:Date.now(),text:'',done:false});
@@ -104,7 +124,9 @@ function render(focusId,end){
     row.append(ck,inp,del);sh.append(row)});
   if(focusId!=null){const f=$('t'+focusId);if(f){f.focus();if(end)f.setSelectionRange(f.value.length,f.value.length)}}
 }
-window.refresh=()=>{if(!document.activeElement||!document.activeElement.classList.contains('txt'))show(cur)};
+window.refresh=()=>{if(!typing())show(cur,true)};
+setInterval(()=>{if(!document.hidden)pull(cur)},60000);
+addEventListener('focus',()=>pull(cur));document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull(cur)});
 $('prev').onclick=()=>show(addDays(cur,-1));$('next').onclick=()=>show(addDays(cur,1));
 $('back').onclick=()=>show(today);$('pick').onchange=e=>{if(e.target.value)show(e.target.value)};
 setInterval(()=>{const t=todayKey();if(t!==today){const was=cur===today;today=t;if(was)show(today)}},30000);
