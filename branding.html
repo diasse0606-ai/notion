@@ -1,49 +1,57 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>푸우리 Illustration Portfolio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-/* Layout: 갤러리 중심 포트폴리오 — 얇은 머리띠(이름·메뉴), 작품이 화면 대부분, 탭으로 Works/Goods/About/Contact */
+/* Layout: 갤러리 중심 포트폴리오 — 얇은 머리띠, 이름+자동으로 넘어가는 대표작, 탭(Works/Goods/About/Contact) */
 :root{
-  --paper:#ffffff; --ink:#1d2533; --sub:#7a8494; --rule:#e8edf3; --accent:#2b7fd4; --tile:#f3f6fa;
-  --latin:"Jost","Pretendard",sans-serif; --body:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --paper:#ffffff; --ink:#18202c; --sub:#8a93a1; --rule:#eaeef3; --accent:#2b7fd4; --tile:#f4f6f9;
+  --open:#2b7fd4; --consult:#e3a82b; --closed:#c5ccd6;
+  --f:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121418;--ink:#e9edf3;--sub:#8b95a5;--rule:#262b33;--accent:#6aaee6;--tile:#1b1f26;color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#121418;--ink:#e9edf3;--sub:#8b95a5;--rule:#262b33;--accent:#6aaee6;--tile:#1b1f26;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121418;--ink:#eceff4;--sub:#8b95a5;--rule:#252a32;--accent:#6aaee6;--tile:#1b1f26;--closed:#3a414c;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121418;--ink:#eceff4;--sub:#8b95a5;--rule:#252a32;--accent:#6aaee6;--tile:#1b1f26;--closed:#3a414c;color-scheme:dark}
 *{box-sizing:border-box}[hidden]{display:none!important}
 html,body{margin:0}
-body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.7;padding:0 max(20px,env(safe-area-inset-right,0px)) 0 max(20px,env(safe-area-inset-left,0px))}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.7;letter-spacing:-.01em;padding:0 max(20px,env(safe-area-inset-right,0px)) 0 max(20px,env(safe-area-inset-left,0px))}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer;padding:0}
 :focus-visible{outline:1px solid var(--accent);outline-offset:3px}
 .wrap{max-width:1100px;margin:0 auto}
-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:28px 0 24px}
-.logo{display:flex;flex-direction:column;line-height:1.2}
-.logo b{font-size:20px;font-weight:600;letter-spacing:.04em}
-.logo span{font-family:var(--latin);font-weight:300;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--sub)}
-nav{display:flex;gap:clamp(14px,3vw,30px)}
-nav button{font-family:var(--latin);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);padding:4px 0;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.cap{font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--sub)}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:26px 0 22px;border-bottom:1px solid var(--rule)}
+.logo{display:flex;align-items:baseline;gap:12px}
+.logo b{font-size:18px;font-weight:700;letter-spacing:-.02em}
+nav{display:flex;gap:clamp(14px,3vw,28px)}
+nav button{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--sub);padding:4px 0;border-bottom:1.5px solid transparent;transition:color .2s,border-color .2s}
 nav button:hover{color:var(--ink)}
 nav button.on{color:var(--ink);border-bottom-color:var(--ink)}
-.lead{padding:clamp(28px,6vw,64px) 0 clamp(28px,5vw,48px);display:flex;flex-direction:column;gap:6px}
-.lead small{font-family:var(--latin);font-weight:300;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub)}
-.lead p{margin:0;font-size:15px}
-.topics{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:28px;font-size:13px}
-.topics b{font-family:var(--latin);font-weight:500;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);flex:none}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,60px);align-items:center;padding:clamp(28px,5vw,56px) 0}
+@media (max-width:640px){.hero{grid-template-columns:1fr}}
+.hero h1{margin:8px 0 14px;font-size:clamp(48px,9vw,92px);font-weight:800;letter-spacing:-.05em;line-height:1}
+.hero p{margin:0;font-size:15px;color:var(--sub);max-width:28em}
+.slides{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--tile)}
+.slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateX(100%);transition:transform .7s cubic-bezier(.7,0,.2,1)}
+.slides img.on{transform:translateX(0)}
+.slides img.out{transform:translateX(-100%)}
+.slides .bar{position:absolute;left:14px;right:14px;bottom:14px;display:flex;gap:5px;z-index:2}
+.slides .bar i{flex:1;height:2px;background:rgba(255,255,255,.45);overflow:hidden}
+.slides .bar i.on::after{content:"";display:block;height:100%;background:#fff;animation:fill var(--d) linear forwards}
+@keyframes fill{from{width:0}to{width:100%}}
+.topics{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule);font-size:13px}
+.topics .cap{color:var(--accent)}
+main{padding-top:clamp(20px,3vw,32px)}
 .view{animation:fade .45s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.rows{display:flex;flex-direction:column;gap:clamp(10px,1.6vw,18px)}
-.row{display:flex;gap:clamp(10px,1.6vw,18px);width:100%}
+.rows{display:flex;flex-direction:column;gap:clamp(10px,1.6vw,16px)}
+.row{display:flex;gap:clamp(10px,1.6vw,16px);width:100%}
 .row .piece{min-width:0;height:100%}
 @media (max-width:560px){.row{flex-direction:column;aspect-ratio:auto!important}.row .piece{flex:none!important;height:auto}.row .piece img{height:auto}}
 .piece{position:relative;overflow:hidden;background:var(--tile);cursor:zoom-in;display:block}
-.piece img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease,opacity .4s}
+.piece img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease}
 .piece:hover img{transform:scale(1.025)}
-.piece .cap{position:absolute;left:12px;bottom:10px;font-family:var(--latin);font-size:11px;letter-spacing:.16em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
-.piece:hover .cap{opacity:1}
-.goods{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:clamp(12px,2vw,22px)}
+.goods{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:clamp(12px,2vw,20px)}
 .good{display:flex;flex-direction:column;gap:10px;cursor:zoom-in}
 .good .ph{aspect-ratio:1;background:var(--tile);display:grid;place-items:center;overflow:hidden}
 .good img{width:84%;height:84%;object-fit:contain;transition:transform .5s}
@@ -54,75 +62,145 @@ nav button.on{color:var(--ink);border-bottom-color:var(--ink)}
 .about .pic{aspect-ratio:1;background:var(--tile);overflow:hidden;display:grid;place-items:center}
 .about .pic img{width:100%;height:100%;object-fit:cover}
 .about .pic img.cloud{width:50%;height:auto;object-fit:contain}
-.about h2{margin:0 0 4px;font-size:26px;font-weight:600}
-.about .en{font-family:var(--latin);font-weight:300;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub)}
-dl{margin:28px 0 0;display:grid;grid-template-columns:auto 1fr;gap:12px 28px}
-dt{font-family:var(--latin);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--sub);padding-top:2px}
+.about h2{margin:0 0 2px;font-size:28px;font-weight:800;letter-spacing:-.03em}
+dl{margin:26px 0 0;display:grid;grid-template-columns:auto 1fr;gap:12px 28px}
+dt{padding-top:3px}
 dd{margin:0}
-.dots{display:flex;gap:8px}
-.dots i{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule)}
-.block{max-width:720px}
-.block h3{font-family:var(--latin);font-weight:400;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sub);margin:0 0 16px}
-.block+.block{margin-top:48px}
-.req{font-size:15px;margin:0}
+.dots{display:flex;gap:8px}.dots i{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule)}
+.ct{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(28px,5vw,64px)}
+@media (max-width:760px){.ct{grid-template-columns:1fr}}
+.ct h2{margin:0 0 6px;font-size:clamp(32px,6vw,52px);font-weight:800;letter-spacing:-.04em}
+.blk{margin-top:30px}
+.blk .cap{display:block;margin-bottom:12px}
+.notes{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.notes li{padding-left:16px;position:relative;color:var(--ink)}
+.notes li::before{content:"";position:absolute;left:0;top:.75em;width:6px;height:1.5px;background:var(--sub)}
+.notes li.no{color:var(--sub)}
+.avail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.avail div{border:1px solid var(--rule);padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.avail i{height:4px;border-radius:2px;background:var(--closed)}
+.avail i.open{background:var(--open)}.avail i.consult{background:var(--consult)}
+.legend{display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--sub)}
+.legend span{display:flex;align-items:center;gap:6px}.legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-td{padding:14px 0;border-bottom:1px solid var(--rule);vertical-align:top}
-td:first-child{font-weight:600;width:40%}
+td{padding:12px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{font-weight:600;width:42%}
 td.s{color:var(--sub);font-size:13px}
-.notice{white-space:pre-line;color:var(--sub);margin:16px 0 0}
-.links a{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--rule);transition:padding .3s}
-.links a:hover{padding-left:6px;color:var(--accent)}
-.links b{font-family:var(--latin);font-weight:400;font-size:17px;letter-spacing:.06em}
-.links span{font-size:12.5px;color:var(--sub)}
-footer{margin-top:clamp(56px,9vw,110px);padding:26px 0 calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--latin);font-size:11px;letter-spacing:.2em;color:var(--sub)}
-footer nav a{font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{border:1px solid var(--rule);padding:7px 14px;font-size:13px;transition:border-color .2s,color .2s}
+.links a:hover{border-color:var(--ink)}
+form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 16px}
+@media (max-width:520px){form{grid-template-columns:1fr}}
+form .full{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
+label small{font-weight:400;color:var(--sub);letter-spacing:.06em;font-size:11px}
+label em{color:var(--accent);font-style:normal}
+input,textarea,select{border:none;border-bottom:1px solid var(--rule);background:transparent;padding:8px 0;font-size:14px;font-weight:400;border-radius:0;width:100%;min-width:0}
+input:focus,textarea:focus,select:focus{outline:none;border-bottom-color:var(--ink)}
+textarea{min-height:120px;resize:vertical}
+.radios{display:flex;gap:18px;font-weight:400;padding-top:6px}
+.radios label{flex-direction:row;align-items:center;gap:6px;font-weight:400}
+.radios input{width:auto}
+.send{justify-self:start;background:var(--ink);color:var(--paper);padding:12px 34px;font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;transition:opacity .2s}
+.send:disabled{opacity:.4;cursor:default}
+.msg{grid-column:1/-1;font-size:13px}
+.msg.ok{color:var(--accent)}.msg.err{color:#d9534f}
+footer{margin-top:clamp(56px,9vw,100px);padding:24px 0 calc(28px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--sub)}
+footer nav a{font-size:11px;letter-spacing:.16em;text-transform:uppercase}
 footer nav a:hover{color:var(--ink)}
-.box{position:fixed;inset:0;background:rgba(10,12,16,.88);display:grid;place-items:center;padding:24px;z-index:20;cursor:zoom-out;animation:fade .25s}
-.box img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.box .x{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(18px + env(safe-area-inset-right,0px));color:#fff;font-family:var(--latin);font-size:12px;letter-spacing:.24em}
+.box{position:fixed;inset:0;background:rgba(10,12,16,.9);display:grid;place-items:center;padding:24px;z-index:20;cursor:zoom-out;animation:fade .25s}
+.box img{max-width:100%;max-height:100%;object-fit:contain}
+.box .x{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(18px + env(safe-area-inset-right,0px));color:#fff;font-size:11px;letter-spacing:.2em}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body><div class="wrap">
-<header><a class="logo" href="#works" data-v="works"><b id="logo"></b><span>Illustration Portfolio</span></a>
+<header><a class="logo" href="#works" data-v="works"><b id="logo"></b><span class="cap">Illustration Portfolio</span></a>
 <nav id="nav"><button data-v="works">Works</button><button data-v="goods">Goods</button><button data-v="about">About</button><button data-v="contact">Contact</button></nav></header>
-<div class="lead"><small>Freelance Illustrator</small><p id="intro"></p></div>
-<div class="topics" id="topics" hidden><b>Topics</b><span id="topicTxt"></span></div>
+<div id="heroWrap"><div class="hero"><div><span class="cap">Freelance Illustrator</span><h1 id="nm"></h1><p id="intro"></p></div><div class="slides" id="slides"></div></div>
+<div class="topics" id="topics" hidden><span class="cap">Topics</span><span id="topicTxt"></span></div></div>
 <main id="main"></main>
-<footer><span id="copy"></span><nav id="sns"></nav></footer>
+<footer><span id="copy"></span><nav id="sns" style="display:flex;gap:18px"></nav></footer>
 </div>
-<div class="box" id="box" hidden><img id="boxImg" alt=""><span class="x">Close</span></div>
+<div class="box" id="box" hidden><img id="boxImg" alt=""><span class="x">CLOSE</span></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const P=new URLSearchParams(location.search);
+const FORM_API="https://script.google.com/macros/s/AKfycbx3E6ewgEymLt2pQsg-L427PVz1ujDfV3rlXySUbaBBdwKAhpUIosMIwdQ8GUZfD_V9/exec";
 let B={},W=[],G=[];
 const VIEWS=['works','goods','about','contact'];
+/* 대표작 슬라이드: 3.5초마다 옆으로 샥 */
+const DUR=3500;let si=0,timer=null;
+function slides(){
+  const el=$('slides');if(!W.length){el.hidden=true;return}
+  el.style.setProperty('--d',DUR+'ms');
+  el.innerHTML=W.map((w,i)=>`<img src="artboard/${encodeURIComponent(w.file)}" alt="${esc(w.name||'')}" class="${i===0?'on':''}">`).join('')+`<div class="bar">${W.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`;
+  const imgs=[...el.querySelectorAll('img')],bars=[...el.querySelectorAll('.bar i')];
+  const go=n=>{const prev=imgs[si];si=(n+imgs.length)%imgs.length;const cur=imgs[si];
+    imgs.forEach(im=>{if(im!==prev&&im!==cur){im.style.transition='none';im.classList.remove('on','out');void im.offsetWidth;im.style.transition=''}});
+    prev.classList.remove('on');prev.classList.add('out');cur.classList.remove('out');cur.classList.add('on');
+    bars.forEach((b,k)=>{b.classList.remove('on');if(k===si){void b.offsetWidth;b.classList.add('on')}})};
+  clearInterval(timer);if(imgs.length>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>go(si+1),DUR);
+  el.onclick=()=>{$('boxImg').src=imgs[si].src;$('box').hidden=false};el.style.cursor='zoom-in';
+}
 function ratioOf(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i.naturalWidth/i.naturalHeight);i.onerror=()=>r(.75);i.src=src})}
 async function works(){
-  const list=await Promise.all(W.map(async w=>({...w,src:'artboard/'+encodeURIComponent(w.file),r:await ratioOf('artboard/'+encodeURIComponent(w.file))})));
+  const list=await Promise.all(W.map(async w=>{const src='artboard/'+encodeURIComponent(w.file);return {...w,src,r:await ratioOf(src)}}));
   const rows=[list.slice(0,3)];for(let i=3;i<list.length;i+=2)rows.push(list.slice(i,i+2));
   if(rows.length>1&&rows[rows.length-1].length===1)rows[rows.length-2].push(rows.pop()[0]);
-  return '<div class="rows">'+rows.filter(r=>r.length).map(r=>`<div class="row" style="aspect-ratio:${r.reduce((t,w)=>t+w.r,0).toFixed(3)}">${r.map(w=>`<a class="piece" href="#" data-src="${w.src}" style="flex:${w.r.toFixed(3)} 1 0"><img src="${w.src}" alt="${esc(w.name||'')}" loading="lazy">${w.name||w.date?`<span class="cap">${esc(w.name||'')} ${esc(w.date||'')}</span>`:''}</a>`).join('')}</div>`).join('')+'</div>';
+  return '<div class="rows">'+rows.filter(r=>r.length).map(r=>`<div class="row" style="aspect-ratio:${r.reduce((t,w)=>t+w.r,0).toFixed(3)}">${r.map(w=>`<a class="piece" href="#" data-src="${w.src}" style="flex:${w.r.toFixed(3)} 1 0"><img src="${w.src}" alt="${esc(w.name||'')}" loading="lazy"></a>`).join('')}</div>`).join('')+'</div>';
 }
 function goods(){return '<div class="goods">'+G.map(n=>{const s='goods/'+encodeURIComponent(n)+'.png';return `<a class="good" href="#" data-src="${s}"><span class="ph"><img src="${s}" alt="${esc(n)}" loading="lazy"></span><span>${esc(n.replace(/\s*\(.*\)\s*$/,''))}</span></a>`}).join('')+'</div>'}
 function about(){
   const pal=(B.palette||[]).filter(c=>/^#[0-9a-f]{3,8}$/i.test(c.hex||''));
   return `<div class="about"><div class="pic"><img src="profile.png" alt="" onerror="this.onerror=null;this.className='cloud';this.src='cloud.png'"></div>
-  <div><h2>${esc(B.name)}</h2><span class="en">Illustrator</span>
-  <dl><dt>Profile</dt><dd>${esc(B.intro)}</dd>
-  ${B.main?`<dt>Specialty</dt><dd>${esc(B.main)}</dd>`:''}
-  ${(B.keywords||[]).length?`<dt>Keywords</dt><dd>${esc(B.keywords.join(' · '))}</dd>`:''}
-  ${pal.length?`<dt>Palette</dt><dd class="dots">${pal.map(c=>`<i style="background:${c.hex}" title="${esc(c.role)} ${esc(c.hex)}"></i>`).join('')}</dd>`:''}
-  <dt>Tools</dt><dd>Clip Studio Paint</dd></dl></div></div>`}
+  <div><h2>${esc(B.name)}</h2><span class="cap">Illustrator</span>
+  <dl><dt class="cap">Profile</dt><dd>${esc(B.intro)}</dd>
+  ${B.main?`<dt class="cap">Specialty</dt><dd>${esc(B.main)}</dd>`:''}
+  ${(B.keywords||[]).length?`<dt class="cap">Keywords</dt><dd>${esc(B.keywords.join(' · '))}</dd>`:''}
+  ${pal.length?`<dt class="cap">Palette</dt><dd class="dots">${pal.map(c=>`<i style="background:${c.hex}" title="${esc(c.role)} ${esc(c.hex)}"></i>`).join('')}</dd>`:''}
+  <dt class="cap">Tools</dt><dd>Clip Studio Paint</dd></dl></div></div>`}
 function contact(){
-  const pr=(B.prices||[]).filter(p=>p.type);
-  return `<div class="block"><h3>Commission</h3>${B.request?`<p class="req">${esc(B.request)}</p>`:''}
-  ${pr.length?`<table>${pr.map(p=>`<tr><td>${esc(p.type)}</td><td>${esc(p.price||'문의')}</td><td class="s">${esc([p.period,p.note].filter(Boolean).join(' · '))}</td></tr>`).join('')}</table>`:''}
-  ${B.notice?`<p class="notice">${esc(B.notice)}</p>`:''}</div>
-  <div class="block"><h3>Contact</h3><div class="links">${(B.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.label)}</b><span>${esc(l.sub||'')} ↗</span></a>`).join('')}</div></div>`}
+  const pr=(B.prices||[]).filter(p=>p.type),notes=B.contactNotes||[],no=B.notAccepted||[],av=B.availability||[];
+  const label={open:'접수 중',consult:'상담',closed:'마감'};
+  const opt=(arr)=>arr.map(o=>`<option>${esc(o)}</option>`).join('');
+  return `<div class="ct"><div><span class="cap">Contact</span><h2>문의하기</h2>
+  ${notes.length||no.length?`<div class="blk"><span class="cap">Notes</span><ul class="notes">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}${no.map(n=>`<li class="no">받지 않는 작업 · ${esc(n)}</li>`).join('')}</ul></div>`:''}
+  ${av.length?`<div class="blk"><span class="cap">Current Availability</span><div class="avail">${av.map(a=>`<div>${esc(a.month)}<i class="${esc(a.status)}" title="${esc(label[a.status]||'')}"></i></div>`).join('')}</div>
+    <div class="legend"><span><i style="background:var(--open)"></i>접수 중</span><span><i style="background:var(--consult)"></i>상담</span><span><i style="background:var(--closed)"></i>마감</span></div></div>`:''}
+  ${pr.length?`<div class="blk"><span class="cap">Price</span><table>${pr.map(p=>`<tr><td>${esc(p.type)}</td><td>${esc(p.price||'문의')}</td><td class="s">${esc([p.period,p.note].filter(Boolean).join(' · '))}</td></tr>`).join('')}</table></div>`:''}
+  <div class="blk"><span class="cap">Links</span><div class="links">${(B.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}</div></div></div>
+  <form id="form" novalidate>
+   <label><span>이름 <em>*</em></span><small>NAME</small><input id="f_name" required autocomplete="name"></label>
+   <label>소속<small>COMPANY</small><input id="f_org" autocomplete="organization"></label>
+   <label class="full"><span>연락받을 이메일 <em>*</em></span><small>EMAIL</small><input id="f_mail" type="email" required autocomplete="email"></label>
+   <label class="full"><span>문의 내용 <em>*</em></span><small>DETAILS</small><textarea id="f_body" required></textarea></label>
+   <label><span>예산 <em>*</em></span><small>BUDGET</small><input id="f_budget" required></label>
+   <label>희망 마감일<small>DEADLINE</small><input id="f_due" type="date"></label>
+   <div class="full"><label><span>포트폴리오 공개 가능 여부 <em>*</em></span><small>PORTFOLIO USE</small></label><div class="radios"><label><input type="radio" name="pub" value="가능" required>가능</label><label><input type="radio" name="pub" value="불가">불가</label><label><input type="radio" name="pub" value="상의">상의 후 결정</label></div></div>
+   <label class="full">공개 가능 시기<small>PUBLICATION DATE</small><input id="f_pubdate" placeholder=""></label>
+   <button class="send full" type="submit" id="send">Send</button><p class="msg" id="msg" hidden></p>
+  </form></div>`}
+async function submitForm(e){
+  e.preventDefault();const f=e.target,msg=$('msg');
+  const pub=f.querySelector('input[name=pub]:checked');
+  const v={name:$('f_name').value.trim(),org:$('f_org').value.trim(),email:$('f_mail').value.trim(),body:$('f_body').value.trim(),budget:$('f_budget').value.trim(),due:$('f_due').value,pub:pub?pub.value:'',pubdate:$('f_pubdate').value.trim()};
+  const miss=!v.name||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)||!v.body||!v.budget||!v.pub;
+  msg.hidden=false;
+  if(miss){msg.className='msg err';msg.textContent='* 표시된 칸을 모두 채워주세요. 이메일 형식도 확인해주세요.';return}
+  if(!FORM_API){msg.className='msg err';msg.textContent='지금은 문의를 받을 수 없어요. SNS로 연락해주세요.';return}
+  $('send').disabled=true;msg.className='msg';msg.textContent='보내는 중…';
+  try{const r=await fetch(FORM_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:'inquiry'},v))});
+    const j=await r.json();if(!j.ok)throw 0;msg.className='msg ok';msg.textContent='문의가 접수됐어요. 확인 후 이메일로 답장드릴게요.';f.reset()}
+  catch(err){msg.className='msg err';msg.textContent='보내지 못했어요. 잠시 후 다시 시도하거나 SNS로 연락해주세요.'}
+  $('send').disabled=false;
+}
 async function show(v){
   if(!VIEWS.includes(v))v='works';
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  $('heroWrap').hidden=v!=='works';
   const html=v==='works'?await works():v==='goods'?goods():v==='about'?about():contact();
   $('main').innerHTML=`<div class="view">${html}</div>`;
+  if(v==='contact')$('form').addEventListener('submit',submitForm);
   try{history.replaceState(null,'','#'+v)}catch(e){}
 }
 document.addEventListener('click',e=>{
@@ -132,11 +210,10 @@ document.addEventListener('click',e=>{
 });
 addEventListener('keydown',e=>{if(e.key==='Escape')$('box').hidden=true});
 Promise.all([fetch('brand.json?t='+Date.now()).then(r=>r.json()).catch(()=>({})),fetch('artboard/list.json?t='+Date.now()).then(r=>r.json()).catch(()=>[]),fetch('goods/list.json?t='+Date.now()).then(r=>r.json()).catch(()=>[])]).then(([b,w,g])=>{
-  B=b;W=w;G=g;$('logo').textContent=b.name||'';$('intro').textContent=b.intro||'';document.title=(b.name||'')+' Illustration Portfolio';
+  B=b;W=w;G=g;$('logo').textContent=b.name||'';$('nm').textContent=b.name||'';$('intro').textContent=b.intro||'';document.title=(b.name||'')+' Illustration Portfolio';
   if(b.topic){$('topics').hidden=false;$('topicTxt').textContent=b.topic}
   $('copy').textContent='© '+(b.name||'')+' · 무단 사용 및 2차 가공 금지';
   $('sns').innerHTML=(b.links||[]).slice(0,2).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('');
-  $('sns').style.cssText='display:flex;gap:18px';
-  show((location.hash||'').slice(1));
+  slides();show((location.hash||'').slice(1));
 });
 </script></body></html>
