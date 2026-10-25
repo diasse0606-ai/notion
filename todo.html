@@ -107,7 +107,7 @@ async function moveOn(t){
 const PAST=7;
 function pastUndone(){const out=[];for(let i=PAST;i>=1;i--){const k=addDays(today,-i);S.get('todos_'+k,[]).forEach(t=>{if(hasText(t)&&!t.done)out.push([k,t])})}return out}
 function carry(){const n=cur===today?pastUndone().length:0;$('carry').hidden=!n;$('carryN').textContent=n||'';$('back').hidden=cur===today;
-  const left=todos.filter(t=>hasText(t)&&!t.done).length;$('all').hidden=!left;$('all').innerHTML=(cur>=today?'남은 일 전부 미루기':'남은 일 전부 오늘로')+'<b>'+left+'</b>';
+  const left=todos.filter(t=>hasText(t)&&!t.done).length;$('all').hidden=!left;$('all').innerHTML=(cur>=today?'전부 다음날로':'전부 오늘로')+'<b>'+left+'</b>';
   $('bar').hidden=$('carry').hidden&&$('back').hidden&&$('all').hidden}
 async function moveAll(){
   const go=todos.filter(t=>hasText(t)&&!t.done);if(!go.length)return;
