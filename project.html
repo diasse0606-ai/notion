@@ -79,6 +79,17 @@ a.icon{text-decoration:none}
 .st.done{background:var(--yellow);border-color:var(--yellow);color:var(--yellow-ink)}
 .st:disabled{opacity:.55}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 0}
+.pj{position:relative}
+.menu{position:absolute;z-index:5;right:10px;top:calc(100% - 6px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 10px 22px -12px rgba(43,116,189,.55);min-width:108px}
+.menu button{border:none;background:none;text-align:left;border-radius:9px;padding:6px 10px;font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:7px}
+.menu button:hover,.menu button:focus-visible{background:var(--soft);outline:none}
+.menu button[aria-checked=true]{color:var(--deep);font-weight:700}
+.menu button i{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.menu button[data-v="진행 중"] i,.menu button[data-v="작업 중"] i{background:var(--deep)}
+.menu button[data-v="완료"] i,.menu button[data-v="회고 완료"] i,.menu button[data-v="완성"] i{background:var(--star)}
+.menu button[data-v="스케치"] i{background:#f0c94a}
+.toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--text);color:var(--paper);border-radius:999px;padding:7px 8px 7px 16px;font-size:12.5px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px -10px rgba(0,0,0,.4);z-index:9}
+.toast button{border:none;background:var(--paper);color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px}
 
 </style></head><body>
 <div class="w"><div class="head"><h1>PROJECT</h1><div class="tabs" id="tabs"></div>
@@ -104,7 +115,21 @@ const fmtLong=k=>{const d=parseKey(k);return `${d.getFullYear()}년 ${d.getMonth
 addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh)refresh()});
 
 const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
-const DONE=['완료','회고 완료'],NEXT={'예정':'진행 중','진행 중':'완료','완료':'예정','회고 완료':'예정'};
+const DONE=['완료','회고 완료'],STS=['예정','진행 중','완료','회고 완료'];
+/* 상태 고르기 메뉴 + 되돌리기 */
+let menuEl=null,toastT=null;
+function closeMenu(){if(menuEl){menuEl.remove();menuEl=null}}
+function openMenu(btn,opts,cur,onPick){closeMenu();const host=btn.closest('[data-host]');if(!host)return;
+  menuEl=document.createElement('div');menuEl.className='menu';menuEl.setAttribute('role','menu');
+  menuEl.innerHTML=opts.map(o=>`<button role="menuitemradio" data-v="${esc(o)}" aria-checked="${o===cur}"><i></i>${esc(o)}</button>`).join('');
+  host.append(menuEl);if(menuEl.getBoundingClientRect().bottom>innerHeight-4){menuEl.style.top='auto';menuEl.style.bottom='calc(100% - 6px)'}const first=menuEl.querySelector('[aria-checked=true]')||menuEl.querySelector('button');first&&first.focus();
+  menuEl.onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;closeMenu();if(v!==cur)onPick(v)}}
+document.addEventListener('pointerdown',e=>{if(menuEl&&!menuEl.contains(e.target)&&!e.target.closest('[data-menu]'))closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+function toast(msg,undo){let t=document.querySelector('.toast');if(t)t.remove();clearTimeout(toastT);
+  t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${esc(msg)}</span><button>되돌리기</button>`;document.body.append(t);
+  t.querySelector('button').onclick=()=>{t.remove();undo()};toastT=setTimeout(()=>t.remove(),5000)}
+
 let items=S.get('projects_all',[]),tab=S.get('proj_tab','open');
 const isDone=p=>DONE.includes(p.status);
 const dkey=()=>keyOf(new Date());
@@ -130,18 +155,20 @@ function draw(){
   $('list').innerHTML=list.length?list.map(p=>{const d=ddOf(p),run=p.status==='진행 중',done=isDone(p);
     const near=!done&&d.k!==null&&d.k<=7;const pr=p.progress==null?null:Math.round((p.progress>1?p.progress/100:p.progress)*100);
     const sub=[period(p),p.goal].filter(Boolean).map(esc).join(' · ');
-    return `<div class="pj${run?' run':''}${near?' near':''}${done?' done':''}" id="p${p.id}"><span class="dd">${done?'완료':d.t}</span>
+    return `<div class="pj${run?' run':''}${near?' near':''}${done?' done':''}" id="p${p.id}" data-host><span class="dd">${done?'완료':d.t}</span>
 <a class="mid" href="${esc(p.url)}" target="_blank" rel="noopener"><span class="t1">${p.area?`<span class="ar${p.area==='행사'?' ev':''}">${esc(p.area)}</span>`:''}<b>${esc(p.name)}</b></span>${sub?`<small>${sub}</small>`:''}${pr==null?'':`<span class="pg"><span><i style="width:${Math.max(0,Math.min(100,pr))}%"></i></span><em>${pr}%</em></span>`}</a>
-<button class="st${run?' run':''}${done?' done':''}" data-id="${p.id}" aria-label="상태 바꾸기: ${esc(p.status)}">${esc(p.status||'예정')}</button></div>`}).join(''):'<div class="empty">—</div>';
+<button class="st${run?' run':''}${done?' done':''}" data-id="${p.id}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(p.status)}">${esc(p.status||'예정')}</button></div>`}).join(''):'<div class="empty">—</div>';
 }
 async function load(){if(!API)return;try{const r=await fetch(API+'?what=projects_all&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
   if(Array.isArray(j.projects)){items=j.projects.filter(p=>p.id);S.set('projects_all',items);draw()}}catch(e){}}
-async function setStatus(id){const p=items.find(x=>x.id===id);if(!p)return;const old=p.status,nx=NEXT[old]||'진행 중';p.status=nx;S.set('projects_all',items);draw();
-  const b=document.querySelector(`.st[data-id="${id}"]`);if(b)b.disabled=true;
+async function setStatus(id,nx,undo){const p=items.find(x=>x.id===id);if(!p||p.status===nx)return;const old=p.status;p.status=nx;S.set('projects_all',items);draw();
+  if(!undo)toast(`${p.name} → ${nx}`,()=>setStatus(id,old,true));
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'pstatus',id,status:nx})});const j=await r.json();if(!j.ok)throw 0}
-  catch(e){p.status=old;S.set('projects_all',items)}draw()}
+  catch(e){p.status=old;S.set('projects_all',items);draw()}}
 $('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('proj_tab',tab);draw()};
-$('list').onclick=e=>{const b=e.target.closest('.st');if(b)setStatus(b.dataset.id)};
+$('list').onclick=e=>{const b=e.target.closest('.st');if(!b)return;const p=items.find(x=>x.id===b.dataset.id);if(!p)return;
+  if(menuEl&&menuEl.parentNode===b.closest('[data-host]')){closeMenu();return}
+  openMenu(b,STS,p.status,v=>setStatus(p.id,v))};
 $('rail').onclick=e=>{const b=e.target.closest('.dot');if(!b)return;const el=document.getElementById('p'+b.dataset.id);if(!el)return;
   el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('hl');setTimeout(()=>el.classList.remove('hl'),1400)};
 $('reload').onclick=load;
