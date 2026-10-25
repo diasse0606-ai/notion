@@ -64,7 +64,8 @@ button{cursor:pointer}
 .card a:hover b{text-decoration:underline;text-decoration-color:var(--line)}
 .card b{font-size:14px;line-height:1.4;overflow-wrap:anywhere;color:var(--text);font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
-.chips span{font-size:10.5px;border-radius:999px;padding:1px 7px;background:var(--card);border:1.3px solid var(--line);color:var(--ink)}
+.chips button{font-size:10.5px;border-radius:999px;padding:1px 7px;background:var(--card);border:1.3px solid var(--line);color:var(--ink)}
+.chips button:hover{background:var(--deep);border-color:var(--deep);color:var(--knob)}
 .ft{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
 .ft small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .st{border:1.6px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:2px 9px;font-size:11.5px;white-space:nowrap}
@@ -90,7 +91,6 @@ button{cursor:pointer}
 <form class="add" id="form"><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></svg>
 <input id="title" autocomplete="off" aria-label="새 아이디어" maxlength="200"><button class="btn main" type="submit">추가</button></div>
 <div class="tags" id="newTags"></div></form>
-<div class="filt" id="filt"></div>
 <div class="grid" id="grid"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
@@ -125,21 +125,20 @@ function toast(msg,undo){let t=document.querySelector('.toast');if(t)t.remove();
   t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${esc(msg)}</span><button>되돌리기</button>`;document.body.append(t);
   t.querySelector('button').onclick=()=>{t.remove();undo()};toastT=setTimeout(()=>t.remove(),5000)}
 const TAGS=['캐릭터','배경','굿즈용','커미션 샘플','낙서'];
-let ideas=S.get('ideas',[]),tab=S.get('idea_tab','open'),tagF=S.get('idea_tag',''),pick=[],fresh=null;
+let ideas=S.get('ideas',[]),tab=S.get('idea_tab','open'),tagF='',pick=[],fresh=null;
 const TABS=[['open','진행',i=>i.status!=='완성'],['메모','메모',i=>i.status==='메모'],['스케치','스케치',i=>i.status==='스케치'],['작업 중','작업 중',i=>i.status==='작업 중'],['완성','완성',i=>i.status==='완성']];
 const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:KEY},b))}).then(r=>r.json());
 const md=k=>{if(!k)return '';const d=parseKey(k);return (d.getMonth()+1)+'.'+d.getDate()};
 function draw(){
   if(!TABS.some(t=>t[0]===tab))tab='open';
-  $('tabs').innerHTML=TABS.map(([v,l,f])=>`<button class="tab" data-t="${esc(v)}" aria-pressed="${tab===v}">${l}<b>${ideas.filter(f).length}</b></button>`).join('');
+  $('tabs').innerHTML=TABS.map(([v,l,f])=>`<button class="tab" data-t="${esc(v)}" aria-pressed="${tab===v}">${l}<b>${ideas.filter(f).length}</b></button>`).join('')+(tagF?`<button class="tg on" id="clearTag" aria-pressed="true" aria-label="${esc(tagF)} 태그 보기 끄기"># ${esc(tagF)} ×</button>`:'');
   $('newTags').innerHTML=TAGS.map(t=>`<button type="button" class="tg" data-t="${esc(t)}" aria-pressed="${pick.includes(t)}">${t}</button>`).join('');
-  $('filt').innerHTML=['',...TAGS].map(t=>`<button class="tg" data-f="${esc(t)}" aria-pressed="${tagF===t}">${t?'# '+t:'# 전체'}</button>`).join('');
   const f=TABS.find(t=>t[0]===tab)[2],list=ideas.filter(i=>f(i)&&(!tagF||i.tags.includes(tagF)));
   $('grid').innerHTML=list.length?list.map(i=>{const s=ST.indexOf(i.status);return `<div class="card s${s<0?0:s}${fresh===i.id?' new':''}" data-host>
 <button class="x" data-del="${i.id}" aria-label="삭제">×</button>
 ${i.ref?`<img class="th" src="${esc(i.ref)}" alt="" loading="lazy">`:''}
 <a href="${esc(i.url||'#')}" target="_blank" rel="noopener"><b>${esc(i.title)}</b></a>
-${i.tags.length?`<span class="chips">${i.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</span>`:''}
+${i.tags.length?`<span class="chips">${i.tags.map(t=>`<button data-f="${esc(t)}" aria-label="${esc(t)} 태그만 보기">${esc(t)}</button>`).join('')}</span>`:''}
 <span class="ft"><small>${md(i.created)}</small><button class="st" data-st="${i.id}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(i.status)}">${esc(i.status)}</button></span></div>`}).join(''):'<div class="empty">—</div>';
   fresh=null;
 }
@@ -152,9 +151,10 @@ $('form').onsubmit=async e=>{e.preventDefault();const title=$('title').value.tri
   if(!API)return;try{const j=await post({action:'idea_add',title,tags:tmp.tags});if(!j.ok)throw 0;Object.assign(tmp,j.idea);keep();draw()}
   catch(err){ideas=ideas.filter(i=>i!==tmp);draw();$('title').value=title}};
 $('newTags').onclick=e=>{const b=e.target.closest('.tg');if(!b)return;const t=b.dataset.t;pick=pick.includes(t)?pick.filter(x=>x!==t):pick.concat(t);draw()};
-$('filt').onclick=e=>{const b=e.target.closest('.tg');if(!b)return;tagF=b.dataset.f;S.set('idea_tag',tagF);draw()};
-$('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('idea_tab',tab);draw()};
+
+$('tabs').onclick=e=>{if(e.target.closest('#clearTag')){tagF='';draw();return}const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('idea_tab',tab);draw()};
 $('grid').onclick=async e=>{
+  const tf=e.target.closest('[data-f]');if(tf){tagF=tf.dataset.f;draw();return}
   const s=e.target.closest('[data-st]'),d=e.target.closest('[data-del]');
   if(s){const i=ideas.find(x=>x.id===s.dataset.st);if(!i||String(i.id).startsWith('tmp'))return;
     if(menuEl&&menuEl.parentNode===s.closest('[data-host]')){closeMenu();return}
