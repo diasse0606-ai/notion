@@ -44,7 +44,7 @@ button{cursor:pointer}
 .nav .icon{width:28px;height:28px}
 .today{border:none;background:var(--deep);color:var(--knob);border-radius:999px;font-size:11.5px;padding:3px 10px}
 .sheet{border:2px solid var(--line);border-radius:12px;overflow:hidden}
-.item{display:grid;grid-template-columns:auto 1fr auto;min-height:40px;border-top:2px solid var(--line)}
+.item{display:grid;grid-template-columns:auto 1fr auto auto;min-height:40px;border-top:2px solid var(--line)}
 .item:first-child{border-top:none}
 .ck{border:none;border-right:2px solid var(--line);background:none;display:grid;place-items:center;padding:0 8px}
 .tg{position:relative;width:46px;height:24px;border-radius:999px;background:var(--soft);display:block;transition:background .2s}
@@ -56,13 +56,18 @@ input.txt:focus-visible{outline:none}
 .done input.txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);text-decoration-thickness:2px}
 .item:focus-within{background:var(--soft)}
 .del{border:none;background:none;color:var(--muted);font-size:17px;padding:0 10px;opacity:0}
-.item:hover .del,.del:focus-visible{opacity:1}
-@media (hover:none){.del{opacity:.55}}
+.mv{border:none;background:none;color:var(--muted);padding:0 4px;opacity:0;display:grid;place-items:center}
+.mv svg{width:14px;height:14px}
+.mv:hover{color:var(--deep)}
+.item:hover .del,.del:focus-visible,.item:hover .mv,.mv:focus-visible{opacity:1}
+@media (hover:none){.del,.mv{opacity:.55}}
+.bar{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.today b{font-weight:700;margin-left:3px}
 
 </style></head><body>
 <div class="w"><div class="head"><h1>TO DO</h1>
 <div class="nav"><button class="icon" id="prev" aria-label="전날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><label class="date"><span id="date"></span><input type="date" id="pick" aria-label="날짜 고르기"></label><button class="icon" id="next" aria-label="다음날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div></div>
-<div style="display:flex;justify-content:flex-end" id="backRow" hidden><button class="today" id="back">오늘로</button></div>
+<div class="bar" id="bar" hidden><button class="today" id="carry" hidden>못 끝낸 일 가져오기<b id="carryN"></b></button><button class="today" id="back" hidden>오늘로</button></div>
 <div class="sheet" id="sheet"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
@@ -87,24 +92,43 @@ const short=k=>{const d=parseKey(k);return `${d.getMonth()+1}.${d.getDate()} (${
 const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
 const typing=()=>document.activeElement&&document.activeElement.classList.contains('txt');
 const pushT={};
-function save(){S.set('todos_'+cur,todos);S.set('todo_ts_'+cur,Date.now());S.set('todo_dirty_'+cur,1);
-  if(!API)return;const k=cur;clearTimeout(pushT[k]);pushT[k]=setTimeout(()=>push(k),700)}
+const hasText=t=>String(t.text||'').trim();
+const newId=()=>Date.now()*1000+Math.floor(Math.random()*1000);
+function saveDay(k,list){S.set('todos_'+k,list);S.set('todo_ts_'+k,Date.now());S.set('todo_dirty_'+k,1);
+  if(!API)return;clearTimeout(pushT[k]);pushT[k]=setTimeout(()=>push(k),700)}
+function save(){saveDay(cur,todos)}
+/* 미루기: 오늘 이후 날짜면 다음날로, 지난 날짜면 오늘로 */
+async function moveOn(t){
+  const k=cur>=today?addDays(cur,1):today;
+  todos.splice(todos.indexOf(t),1);save();render();
+  if(API)await pull(k,true);
+  const l=S.get('todos_'+k,[]).filter(hasText);l.push({id:newId(),text:t.text,done:false});saveDay(k,l);carry()}
+/* 지난 7일 동안 못 끝낸 일 → 오늘로 */
+const PAST=7;
+function pastUndone(){const out=[];for(let i=PAST;i>=1;i--){const k=addDays(today,-i);S.get('todos_'+k,[]).forEach(t=>{if(hasText(t)&&!t.done)out.push([k,t])})}return out}
+function carry(){const n=cur===today?pastUndone().length:0;$('carry').hidden=!n;$('carryN').textContent=n||'';$('back').hidden=cur===today;$('bar').hidden=!n&&cur===today}
+async function scanPast(){if(API){const ks=[];for(let i=1;i<=PAST;i++)ks.push(addDays(today,-i));await Promise.all(ks.map(k=>pull(k,true)))}carry()}
+async function bringPast(){
+  const list=pastUndone();if(!list.length)return;
+  const by={};list.forEach(([k,t])=>(by[k]=by[k]||[]).push(t.id));
+  Object.entries(by).forEach(([k,ids])=>saveDay(k,S.get('todos_'+k,[]).filter(t=>!ids.includes(t.id))));
+  todos=todos.filter(hasText).concat(list.map(([,t])=>({id:newId(),text:t.text,done:false})));save();render();carry()}
 async function push(k){
   const items=S.get('todos_'+k,[]).filter(t=>String(t.text||'').trim()),ts=S.get('todo_ts_'+k,Date.now());
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'todo',date:k,items,ts})});
     const j=await r.json();if(j.ok&&S.get('todo_ts_'+k,0)===ts)S.set('todo_dirty_'+k,0)}catch(e){}
 }
-async function pull(k){
+async function pull(k,quiet){
   if(!API)return;
   try{const r=await fetch(API+'?what=todo&date='+k+'&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();if(j.error)return;
     const lt=S.get('todo_ts_'+k,0),dirty=S.get('todo_dirty_'+k,0),local=S.get('todos_'+k,[]);
     if(j.items===null){if(local.some(t=>String(t.text||'').trim()))push(k);return}
     if(dirty&&lt>=j.ts){push(k);return}
     if(j.ts>=lt&&JSON.stringify(j.items)!==JSON.stringify(local.filter(t=>String(t.text||'').trim()))){
-      S.set('todos_'+k,j.items);S.set('todo_ts_'+k,j.ts);S.set('todo_dirty_'+k,0);if(k===cur&&!typing())show(cur,true)}
+      S.set('todos_'+k,j.items);S.set('todo_ts_'+k,j.ts);S.set('todo_dirty_'+k,0);if(k===cur&&!typing())show(cur,true);carry()}
   }catch(e){}
 }
-function show(k,quiet){cur=k;todos=S.get('todos_'+cur,[]);$('date').textContent=short(cur);$('pick').value=cur;$('backRow').hidden=cur===today;render();if(!quiet)pull(cur)}
+function show(k,quiet){cur=k;todos=S.get('todos_'+cur,[]);$('date').textContent=short(cur);$('pick').value=cur;render();carry();if(!quiet){pull(cur);if(cur===today)scanPast()}}
 function render(focusId,end){
   const sh=$('sheet');sh.innerHTML='';
   if(!todos.length)todos.push({id:Date.now(),text:'',done:false});
@@ -119,16 +143,18 @@ function render(focusId,end){
       else if(e.key==='Backspace'&&!inp.value&&todos.length>1){e.preventDefault();todos.splice(i,1);save();render(todos[Math.max(0,i-1)].id,true)}
       else if(e.key==='ArrowUp'&&i>0){e.preventDefault();$('t'+todos[i-1].id).focus()}
       else if(e.key==='ArrowDown'&&i<todos.length-1){e.preventDefault();$('t'+todos[i+1].id).focus()}};
+    const mv=document.createElement('button');mv.className='mv';mv.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';mv.setAttribute('aria-label',cur>=today?'다음날로 미루기':'오늘로 옮기기');mv.title=mv.getAttribute('aria-label');
+    mv.onclick=()=>{if(hasText(t))moveOn(t)};
     const del=document.createElement('button');del.className='del';del.textContent='×';del.setAttribute('aria-label','삭제');
     del.onclick=()=>{todos.splice(todos.indexOf(t),1);save();render()};
-    row.append(ck,inp,del);sh.append(row)});
+    row.append(ck,inp,mv,del);sh.append(row)});
   if(focusId!=null){const f=$('t'+focusId);if(f){f.focus();if(end)f.setSelectionRange(f.value.length,f.value.length)}}
 }
 window.refresh=()=>{if(!typing())show(cur,true)};
 setInterval(()=>{if(!document.hidden)pull(cur)},60000);
 addEventListener('focus',()=>pull(cur));document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull(cur)});
 $('prev').onclick=()=>show(addDays(cur,-1));$('next').onclick=()=>show(addDays(cur,1));
-$('back').onclick=()=>show(today);$('pick').onchange=e=>{if(e.target.value)show(e.target.value)};
+$('back').onclick=()=>show(today);$('carry').onclick=bringPast;$('pick').onchange=e=>{if(e.target.value)show(e.target.value)};
 setInterval(()=>{const t=todayKey();if(t!==today){const was=cur===today;today=t;if(was)show(today)}},30000);
 show(today);
 
