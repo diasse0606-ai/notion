@@ -38,7 +38,8 @@ button{cursor:pointer}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 .top{display:flex;align-items:center;justify-content:center;gap:4vw;flex-wrap:wrap}
-.dial{width:clamp(140px,44vw,240px);height:auto;aspect-ratio:1;flex:none}
+.dial{width:clamp(140px,44vw,240px);height:auto;aspect-ratio:1;flex:none;touch-action:none;cursor:grab;border-radius:50%}
+.dial.drag{cursor:grabbing}
 .dial text{font-family:var(--font);fill:var(--muted);font-size:11px;font-weight:700}
 .side{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:150px}
 .phase{display:flex;gap:4px;background:var(--tint);border-radius:999px;padding:3px}
@@ -72,7 +73,7 @@ button{cursor:pointer}
 
 </style></head><body>
 <div class="w"><div class="head"><h1>FOCUS</h1></div>
-<div class="top"><svg class="dial" viewBox="0 0 220 220" id="dial" role="img" aria-label="남은 시간"></svg>
+<div class="top"><svg class="dial" viewBox="0 0 220 220" id="dial" role="slider" tabindex="0" aria-label="타이머 시간" aria-valuemin="5" aria-valuemax="60"></svg>
 <div class="side"><div class="phase" id="phase"><span data-p="focus">집중</span><span data-p="short">휴식</span><span data-p="long">긴 휴식</span></div>
 <span class="big" id="tRead">25:00</span>
 <div class="ctrl"><button class="btn" id="tMinus">−5분</button><button class="btn main" id="tStart">시작</button><button class="btn" id="tSkip">건너뛰기</button><button class="btn" id="tReset">리셋</button><button class="btn" id="tPlus">+5분</button></div>
@@ -143,6 +144,19 @@ $('tReset').onclick=()=>{const t=tm();setPhase(t,t.phase,false);save(t);tick()};
 $('tSkip').onclick=()=>{const t=tm(),run=!!t.end;if(t.phase==='focus'){setPhase(t,(t.count+1)%4===0?'long':'short',run);t.count=(t.count||0)+1}else{if(t.phase==='long')t.count=0;setPhase(t,'focus',run)}save(t);tick()};
 const nudge=d=>{const t=tm(),p=t.phase,[lo,hi]=LIM[p];t.len[p]=Math.min(hi,Math.max(lo,t.len[p]+d));setPhase(t,p,false);save(t);tick()};
 $('tPlus').onclick=()=>nudge(5);$('tMinus').onclick=()=>nudge(-5);
+/* 다이얼을 돌려서 5분 단위로 맞추기 */
+function setMin(m){const t=tm(),p=t.phase,[lo,hi]=LIM[p];m=Math.min(hi,Math.max(lo,m));if(t.len[p]===m&&Math.round(left(t)/60)===m)return;
+  t.len[p]=m;if(t.end){t.left=m*60;t.end=Date.now()+t.left*1000}else setPhase(t,p,false);save(t);tick()}
+function angMin(e){const r=$('dial').getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+  let a=Math.atan2(-dx,-dy)*180/Math.PI;if(a<0)a+=360;let m=Math.round(a/30)*5;
+  if(m===0||m===60){m=Math.round(left(tm())/60)>=30?60:5}return m}
+let turning=false;
+$('dial').addEventListener('pointerdown',e=>{turning=true;$('dial').classList.add('drag');$('dial').setPointerCapture(e.pointerId);unlock();setMin(angMin(e));e.preventDefault()});
+$('dial').addEventListener('pointermove',e=>{if(turning)setMin(angMin(e))});
+const endTurn=()=>{turning=false;$('dial').classList.remove('drag')};
+$('dial').addEventListener('pointerup',endTurn);$('dial').addEventListener('pointercancel',endTurn);
+$('dial').addEventListener('keydown',e=>{const t=tm(),cur=t.len[t.phase];
+  if(e.key==='ArrowUp'||e.key==='ArrowRight'){e.preventDefault();setMin(cur+5)}else if(e.key==='ArrowDown'||e.key==='ArrowLeft'){e.preventDefault();setMin(cur-5)}});
 function tick(){
   const tk=todayKey();if(tk!==today){const was=view===today;today=tk;if(was)view=today}
   const t=tm(),s=sw();
@@ -154,6 +168,7 @@ function tick(){
   const done=t.phase==='long'?4:(t.count||0)%4;$('pds').innerHTML=[0,1,2,3].map(i=>`<i class="${i<done?'on':''}"></i>`).join('');
   const e=Math.floor(swE(s)/1000);$('swRead').textContent=pad(Math.floor(e/3600))+':'+pad(Math.floor(e/60)%60)+':'+pad(e%60);$('sw').classList.toggle('run',!!s.start);$('swStart').textContent=s.start?'멈춤':'시작';
   dial(t);paint();
+  $('dial').setAttribute('aria-valuenow',t.len[t.phase]);$('dial').setAttribute('aria-valuetext',Math.ceil(l/60)+'분');
 }
 window.refresh=tick;tick();setInterval(tick,1000);
 
