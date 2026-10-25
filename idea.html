@@ -66,6 +66,9 @@ button{cursor:pointer}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
 .chips button{font-size:10.5px;border-radius:999px;padding:1px 7px;background:var(--card);border:1.3px solid var(--line);color:var(--ink)}
 .chips button:hover{background:var(--deep);border-color:var(--deep);color:var(--knob)}
+.chips .tgEdit{border-style:dashed;color:var(--muted)}
+.tmenu{position:absolute;z-index:5;left:8px;right:8px;top:calc(100% - 10px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;box-shadow:0 10px 22px -12px rgba(43,116,189,.55)}
+.tmenu .done{margin-left:auto}
 .ft{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
 .ft small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .st{border:1.6px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:2px 9px;font-size:11.5px;white-space:nowrap}
@@ -138,7 +141,7 @@ function draw(){
 <button class="x" data-del="${i.id}" aria-label="삭제">×</button>
 ${i.ref?`<img class="th" src="${esc(i.ref)}" alt="" loading="lazy">`:''}
 <a href="${esc(i.url||'#')}" target="_blank" rel="noopener"><b>${esc(i.title)}</b></a>
-${i.tags.length?`<span class="chips">${i.tags.map(t=>`<button data-f="${esc(t)}" aria-label="${esc(t)} 태그만 보기">${esc(t)}</button>`).join('')}</span>`:''}
+<span class="chips">${i.tags.map(t=>`<button data-f="${esc(t)}" aria-label="${esc(t)} 태그만 보기">${esc(t)}</button>`).join('')}<button class="tgEdit" data-tg="${i.id}" data-menu aria-label="태그 고르기">${i.tags.length?'#':'# 태그'}</button></span>
 <span class="ft"><small>${md(i.created)}</small><button class="st" data-st="${i.id}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(i.status)}">${esc(i.status)}</button></span></div>`}).join(''):'<div class="empty">—</div>';
   fresh=null;
 }
@@ -154,6 +157,9 @@ $('newTags').onclick=e=>{const b=e.target.closest('.tg');if(!b)return;const t=b.
 
 $('tabs').onclick=e=>{if(e.target.closest('#clearTag')){tagF='';draw();return}const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('idea_tab',tab);draw()};
 $('grid').onclick=async e=>{
+  const te=e.target.closest('[data-tg]');if(te){openTags(te);return}
+  const tb=e.target.closest('.tmenu .tg');if(tb){toggleTag(tb);return}
+  if(e.target.closest('.tmenu .done')){closeMenu();return}
   const tf=e.target.closest('[data-f]');if(tf){tagF=tf.dataset.f;draw();return}
   const s=e.target.closest('[data-st]'),d=e.target.closest('[data-del]');
   if(s){const i=ideas.find(x=>x.id===s.dataset.st);if(!i||String(i.id).startsWith('tmp'))return;
@@ -162,6 +168,17 @@ $('grid').onclick=async e=>{
   if(d){const i=ideas.find(x=>x.id===d.dataset.del);if(!i||String(i.id).startsWith('tmp'))return;const at=ideas.indexOf(i);ideas.splice(at,1);keep();draw();
     try{const j=await post({action:'idea_del',id:i.id});if(!j.ok)throw 0}catch(err){ideas.splice(at,0,i);keep();draw()}}
 };
+function openTags(btn){const i=ideas.find(x=>x.id===btn.dataset.tg);if(!i||String(i.id).startsWith('tmp'))return;
+  const host=btn.closest('[data-host]');if(menuEl&&menuEl.parentNode===host){closeMenu();return}closeMenu();
+  menuEl=document.createElement('div');menuEl.className='tmenu';menuEl.dataset.id=i.id;
+  menuEl.innerHTML=TAGS.map(t=>`<button class="tg" data-t="${esc(t)}" aria-pressed="${i.tags.includes(t)}">${t}</button>`).join('')+'<button class="btn done">확인</button>';
+  host.append(menuEl);if(menuEl.getBoundingClientRect().bottom>innerHeight-4){menuEl.style.top='auto';menuEl.style.bottom='calc(100% - 10px)'}}
+let tagT=null;
+function toggleTag(b){const i=ideas.find(x=>x.id===menuEl.dataset.id);if(!i)return;const t=b.dataset.t;
+  i.tags=i.tags.includes(t)?i.tags.filter(x=>x!==t):TAGS.filter(x=>x===t||i.tags.includes(x));b.setAttribute('aria-pressed',i.tags.includes(t));keep();
+  const card=menuEl.parentNode,ch=card.querySelector('.chips');ch.querySelectorAll('[data-f]').forEach(x=>x.remove());
+  ch.insertAdjacentHTML('afterbegin',i.tags.map(x=>`<button data-f="${esc(x)}">${esc(x)}</button>`).join(''));ch.querySelector('.tgEdit').textContent=i.tags.length?'#':'# 태그';
+  clearTimeout(tagT);const snap=i.tags.slice();tagT=setTimeout(async()=>{try{const j=await post({action:'idea_tags',id:i.id,tags:snap});if(!j.ok)throw 0}catch(err){load()}},600)}
 async function setIdea(i,v,undo){const old=i.status;if(old===v)return;i.status=v;keep();draw();
   if(!undo)toast(`${i.title} → ${v}`,()=>setIdea(i,old,true));
   try{const j=await post({action:'idea_status',id:i.id,status:v});if(!j.ok)throw 0}catch(err){i.status=old;keep();draw()}}
