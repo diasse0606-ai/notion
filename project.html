@@ -55,6 +55,7 @@ a.icon{text-decoration:none}
 .dot.ev{background:var(--star);box-shadow:0 0 0 1.5px #d9b62b}
 .dot.on{background:var(--deep);box-shadow:0 0 0 1.5px var(--deep)}
 .dot:hover{transform:scale(1.15)}
+.dot.rg{top:10px;height:10px;min-width:10px;margin-left:0;opacity:.75;border-width:1.5px}
 .list{display:flex;flex-direction:column;gap:10px}
 .pj{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--card);transition:box-shadow .3s}
 .pj.run{background:var(--tint)}
@@ -80,6 +81,17 @@ a.icon{text-decoration:none}
 .st:disabled{opacity:.55}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 0}
 .pj{position:relative}
+.nf{display:flex;flex-direction:column;gap:8px;border:2px solid var(--deep);border-radius:16px;padding:12px 14px;background:var(--tint)}
+.nf .r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nf input[type=text]{flex:1 1 180px;min-width:0;border:1.8px solid var(--line);border-radius:10px;background:var(--card);padding:7px 10px;font-size:14px}
+.nf input.nm{font-size:15px;font-weight:700}
+.nf input[type=date]{border:1.8px solid var(--line);border-radius:10px;background:var(--card);padding:5px 8px;font-size:13px}
+.nf input:focus-visible{outline:none;border-color:var(--deep)}
+.nf .sep{color:var(--muted)}
+.nf .ar2{border:1.8px solid var(--line);background:var(--card);border-radius:999px;padding:3px 11px;font-size:12px;color:var(--muted)}
+.nf .ar2[aria-pressed=true]{background:var(--deep);border-color:var(--deep);color:var(--knob)}
+.nf .end{margin-left:auto;display:flex;gap:6px}
+.pj.tmp{opacity:.6}
 .menu{position:absolute;z-index:5;right:10px;top:calc(100% - 6px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 10px 22px -12px rgba(43,116,189,.55);min-width:108px}
 .menu button{border:none;background:none;text-align:left;border-radius:9px;padding:6px 10px;font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:7px}
 .menu button:hover,.menu button:focus-visible{background:var(--soft);outline:none}
@@ -94,8 +106,15 @@ a.icon{text-decoration:none}
 </style></head><body>
 <div class="w"><div class="head"><h1>PROJECT</h1><div class="tabs" id="tabs"></div>
 <button class="icon" id="reload" aria-label="새로고침"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
-<a class="icon" id="add" href="https://app.notion.com/p/3fbeb17c1a77816d81efd24601254938" target="_blank" rel="noopener" aria-label="프로젝트 추가"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a></div>
+<button class="icon" id="add" aria-label="프로젝트 추가" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <div class="tl"><div class="mo" id="mo"></div><div class="rail" id="rail"></div></div>
+<form class="nf" id="nf" hidden>
+<div class="r"><input type="text" class="nm" id="nName" aria-label="프로젝트 이름" autocomplete="off" maxlength="200"></div>
+<div class="r"><input type="date" id="nStart" aria-label="시작일"><span class="sep">–</span><input type="date" id="nEnd" aria-label="종료일"></div>
+<div class="r"><input type="text" id="nGoal" aria-label="부제목" autocomplete="off" maxlength="500"></div>
+<div class="r"><button type="button" class="ar2" data-a="그림" aria-pressed="false">그림</button><button type="button" class="ar2" data-a="행사" aria-pressed="false">행사</button>
+<span class="end"><button type="button" class="btn" id="nCancel">취소</button><button type="submit" class="btn main">추가</button></span></div>
+</form>
 <div class="list" id="list"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
@@ -149,28 +168,43 @@ function draw(){
   const pos=k=>(parseKey(k)-T0)/864e5/SPAN*100;
   $('mo').innerHTML=[0,1,2,3].map(i=>`<span>${new Date(n.getFullYear(),n.getMonth()+i,1).getMonth()+1}월</span>`).join('');
   let r='<span class="ln"></span>'+[25,50,75].map(x=>`<span class="tk" style="left:${x}%"></span>`).join('')+`<span class="now" style="left:${pos(dkey()).toFixed(2)}%"></span>`;
-  list.forEach(p=>{if(!p.start)return;const l=pos(p.start);if(l<0||l>100)return;const e=p.end&&p.end!==p.start?Math.min(pos(p.end)+100/SPAN,100):null;
-    r+=`<button class="dot${p.status==='진행 중'?' on':p.area==='행사'?' ev':''}" data-id="${p.id}" style="left:${l.toFixed(2)}%${e?`;width:calc(${(e-l).toFixed(2)}% + 9px)`:''}" title="${esc(p.name)}" aria-label="${esc(p.name)}"></button>`});
-  $('rail').innerHTML=r;
+  let rr='',rd='';list.forEach(p=>{if(!p.start)return;const l=pos(p.start);if(l<0||l>100)return;const e=p.end&&p.end!==p.start?Math.min(pos(p.end)+100/SPAN,100):null;
+    const h=`<button class="dot${e?' rg':''}${p.status==='진행 중'?' on':p.area==='행사'?' ev':''}" data-id="${p.id}" style="left:${l.toFixed(2)}%${e?`;width:calc(${(e-l).toFixed(2)}% + 9px)`:''}" title="${esc(p.name)}" aria-label="${esc(p.name)}"></button>`;if(e)rr+=h;else rd+=h});
+  $('rail').innerHTML=r+rr+rd;
   $('list').innerHTML=list.length?list.map(p=>{const d=ddOf(p),run=p.status==='진행 중',done=isDone(p);
     const near=!done&&d.k!==null&&d.k<=7;const pr=p.progress==null?null:Math.round((p.progress>1?p.progress/100:p.progress)*100);
     const sub=[period(p),p.goal].filter(Boolean).map(esc).join(' · ');
-    return `<div class="pj${run?' run':''}${near?' near':''}${done?' done':''}" id="p${p.id}" data-host><span class="dd">${done?'완료':d.t}</span>
+    return `<div class="pj${run?' run':''}${near?' near':''}${done?' done':''}${String(p.id).startsWith('tmp')?' tmp':''}" id="p${p.id}" data-host><span class="dd">${done?'완료':d.t}</span>
 <a class="mid" href="${esc(p.url)}" target="_blank" rel="noopener"><span class="t1">${p.area?`<span class="ar${p.area==='행사'?' ev':''}">${esc(p.area)}</span>`:''}<b>${esc(p.name)}</b></span>${sub?`<small>${sub}</small>`:''}${pr==null?'':`<span class="pg"><span><i style="width:${Math.max(0,Math.min(100,pr))}%"></i></span><em>${pr}%</em></span>`}</a>
 <button class="st${run?' run':''}${done?' done':''}" data-id="${p.id}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(p.status)}">${esc(p.status||'예정')}</button></div>`}).join(''):'<div class="empty">—</div>';
 }
 async function load(){if(!API)return;try{const r=await fetch(API+'?what=projects_all&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
-  if(Array.isArray(j.projects)){items=j.projects.filter(p=>p.id);S.set('projects_all',items);draw()}}catch(e){}}
+  if(Array.isArray(j.projects)){const tmp=items.filter(x=>String(x.id).startsWith('tmp'));S.set('projects_all',j.projects.filter(p=>p.id));items=j.projects.filter(p=>p.id).concat(tmp);draw()}}catch(e){}}
 async function setStatus(id,nx,undo){const p=items.find(x=>x.id===id);if(!p||p.status===nx)return;const old=p.status;p.status=nx;S.set('projects_all',items);draw();
   if(!undo)toast(`${p.name} → ${nx}`,()=>setStatus(id,old,true));
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'pstatus',id,status:nx})});const j=await r.json();if(!j.ok)throw 0}
   catch(e){p.status=old;S.set('projects_all',items);draw()}}
 $('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('proj_tab',tab);draw()};
-$('list').onclick=e=>{const b=e.target.closest('.st');if(!b)return;const p=items.find(x=>x.id===b.dataset.id);if(!p)return;
+$('list').onclick=e=>{const b=e.target.closest('.st');if(!b)return;const p=items.find(x=>x.id===b.dataset.id);if(!p||String(p.id).startsWith('tmp'))return;
   if(menuEl&&menuEl.parentNode===b.closest('[data-host]')){closeMenu();return}
   openMenu(b,STS,p.status,v=>setStatus(p.id,v))};
 $('rail').onclick=e=>{const b=e.target.closest('.dot');if(!b)return;const el=document.getElementById('p'+b.dataset.id);if(!el)return;
   el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('hl');setTimeout(()=>el.classList.remove('hl'),1400)};
+/* 새 프로젝트 */
+let nArea='';
+function openNew(on){$('nf').hidden=!on;$('add').setAttribute('aria-expanded',on);if(on){$('nName').focus()}else{$('nf').reset();nArea='';areaBtns()}}
+function areaBtns(){document.querySelectorAll('.ar2').forEach(b=>b.setAttribute('aria-pressed',b.dataset.a===nArea))}
+$('add').onclick=()=>openNew($('nf').hidden);$('nCancel').onclick=()=>openNew(false);
+document.querySelectorAll('.ar2').forEach(b=>b.onclick=()=>{nArea=nArea===b.dataset.a?'':b.dataset.a;areaBtns()});
+$('nf').addEventListener('keydown',e=>{if(e.key==='Escape')openNew(false)});
+$('nf').onsubmit=async e=>{e.preventDefault();const name=$('nName').value.trim();if(!name){$('nName').focus();return}
+  let start=$('nStart').value,end=$('nEnd').value;if(!start&&end){start=end;end=''}if(start&&end&&end<start)[start,end]=[end,start];
+  const tmp={id:'tmp'+Date.now(),name,status:'예정',area:nArea,goal:$('nGoal').value.trim(),start,end:end&&end!==start?end:'',progress:null,url:'#'};
+  items.push(tmp);if(tab==='done'||(tab!=='open'&&tab!==tmp.area))tab='open';openNew(false);draw();
+  const el=document.getElementById('p'+tmp.id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'proj_add',name:tmp.name,start:tmp.start,end:tmp.end,goal:tmp.goal,area:tmp.area})});
+    const j=await r.json();if(!j.ok)throw 0;Object.assign(tmp,j.project);S.set('projects_all',items.filter(x=>!String(x.id).startsWith('tmp')));draw()}
+  catch(err){items=items.filter(x=>x!==tmp);draw();openNew(true);$('nName').value=tmp.name;$('nStart').value=tmp.start;$('nEnd').value=tmp.end;$('nGoal').value=tmp.goal;nArea=tmp.area;areaBtns()}};
 $('reload').onclick=load;
 window.refresh=()=>{items=S.get('projects_all',items);draw()};
 draw();load();setInterval(load,5*60*1000);addEventListener('focus',load);
