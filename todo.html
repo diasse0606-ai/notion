@@ -67,7 +67,7 @@ input.txt:focus-visible{outline:none}
 </style></head><body>
 <div class="w"><div class="head"><h1>TO DO</h1>
 <div class="nav"><button class="icon" id="prev" aria-label="전날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><label class="date"><span id="date"></span><input type="date" id="pick" aria-label="날짜 고르기"></label><button class="icon" id="next" aria-label="다음날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div></div>
-<div class="bar" id="bar" hidden><button class="today" id="all" hidden></button><button class="today" id="carry" hidden>못 끝낸 일 가져오기<b id="carryN"></b></button><button class="today" id="back" hidden>오늘로</button></div>
+<div class="bar" id="bar" hidden><button class="today" id="all" hidden></button><button class="today" id="carry" hidden>못 끝낸 일 가져오기<b id="carryN"></b></button><button class="today" id="back" hidden>오늘 날짜로</button></div>
 <div class="sheet" id="sheet"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
