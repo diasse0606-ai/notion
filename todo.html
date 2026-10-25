@@ -67,7 +67,7 @@ input.txt:focus-visible{outline:none}
 </style></head><body>
 <div class="w"><div class="head"><h1>TO DO</h1>
 <div class="nav"><button class="icon" id="prev" aria-label="전날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><label class="date"><span id="date"></span><input type="date" id="pick" aria-label="날짜 고르기"></label><button class="icon" id="next" aria-label="다음날"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div></div>
-<div class="bar" id="bar" hidden><button class="today" id="carry" hidden>못 끝낸 일 가져오기<b id="carryN"></b></button><button class="today" id="back" hidden>오늘로</button></div>
+<div class="bar" id="bar" hidden><button class="today" id="all" hidden></button><button class="today" id="carry" hidden>못 끝낸 일 가져오기<b id="carryN"></b></button><button class="today" id="back" hidden>오늘로</button></div>
 <div class="sheet" id="sheet"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
@@ -106,7 +106,15 @@ async function moveOn(t){
 /* 지난 7일 동안 못 끝낸 일 → 오늘로 */
 const PAST=7;
 function pastUndone(){const out=[];for(let i=PAST;i>=1;i--){const k=addDays(today,-i);S.get('todos_'+k,[]).forEach(t=>{if(hasText(t)&&!t.done)out.push([k,t])})}return out}
-function carry(){const n=cur===today?pastUndone().length:0;$('carry').hidden=!n;$('carryN').textContent=n||'';$('back').hidden=cur===today;$('bar').hidden=!n&&cur===today}
+function carry(){const n=cur===today?pastUndone().length:0;$('carry').hidden=!n;$('carryN').textContent=n||'';$('back').hidden=cur===today;
+  const left=todos.filter(t=>hasText(t)&&!t.done).length;$('all').hidden=!left;$('all').innerHTML=(cur>=today?'남은 일 전부 미루기':'남은 일 전부 오늘로')+'<b>'+left+'</b>';
+  $('bar').hidden=$('carry').hidden&&$('back').hidden&&$('all').hidden}
+async function moveAll(){
+  const go=todos.filter(t=>hasText(t)&&!t.done);if(!go.length)return;
+  const k=cur>=today?addDays(cur,1):today;
+  todos=todos.filter(t=>!go.includes(t));save();render();
+  if(API)await pull(k,true);
+  const l=S.get('todos_'+k,[]).filter(hasText);go.forEach(t=>l.push({id:newId(),text:t.text,done:false}));saveDay(k,l);carry()}
 async function scanPast(){if(API){const ks=[];for(let i=1;i<=PAST;i++)ks.push(addDays(today,-i));await Promise.all(ks.map(k=>pull(k,true)))}carry()}
 async function bringPast(){
   const list=pastUndone();if(!list.length)return;
@@ -135,9 +143,9 @@ function render(focusId,end){
   todos.forEach((t,i)=>{
     const row=document.createElement('div');row.className='item'+(t.done?' done':'');
     const ck=document.createElement('button');ck.className='ck';ck.innerHTML='<span class="tg"><i></i></span>';ck.setAttribute('aria-label',t.done?'완료 취소':'완료');
-    ck.onclick=()=>{t.done=!t.done;save();row.classList.toggle('done',t.done)};
+    ck.onclick=()=>{t.done=!t.done;save();row.classList.toggle('done',t.done);carry()};
     const inp=document.createElement('input');inp.className='txt';inp.value=t.text;inp.id='t'+t.id;inp.autocomplete='off';inp.setAttribute('aria-label','할 일');
-    inp.oninput=()=>{t.text=inp.value;save()};
+    inp.oninput=()=>{t.text=inp.value;save();carry()};
     inp.onkeydown=e=>{if(e.isComposing)return;
       if(e.key==='Enter'){e.preventDefault();const n={id:Date.now(),text:'',done:false};todos.splice(i+1,0,n);save();render(n.id)}
       else if(e.key==='Backspace'&&!inp.value&&todos.length>1){e.preventDefault();todos.splice(i,1);save();render(todos[Math.max(0,i-1)].id,true)}
@@ -154,7 +162,7 @@ window.refresh=()=>{if(!typing())show(cur,true)};
 setInterval(()=>{if(!document.hidden)pull(cur)},60000);
 addEventListener('focus',()=>pull(cur));document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull(cur)});
 $('prev').onclick=()=>show(addDays(cur,-1));$('next').onclick=()=>show(addDays(cur,1));
-$('back').onclick=()=>show(today);$('carry').onclick=bringPast;$('pick').onchange=e=>{if(e.target.value)show(e.target.value)};
+$('back').onclick=()=>show(today);$('carry').onclick=bringPast;$('all').onclick=moveAll;$('pick').onchange=e=>{if(e.target.value)show(e.target.value)};
 setInterval(()=>{const t=todayKey();if(t!==today){const was=cur===today;today=t;if(was)show(today)}},30000);
 show(today);
 
