@@ -64,9 +64,7 @@ button{cursor:pointer}
 .date:hover{background:var(--soft)}
 .date input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
 .today{border:none;background:var(--deep);color:var(--knob);border-radius:999px;font-size:11px;padding:3px 9px;letter-spacing:0}
-.blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.bcol{display:grid;grid-template-columns:auto 1fr;gap:3px 6px;align-items:center;min-width:0}
-@media (max-width:330px){.blocks{grid-template-columns:1fr}}
+.blocks{display:grid;grid-template-columns:auto 1fr;gap:3px 6px;align-items:center}
 .hr{font-size:11.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;width:16px}
 .row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;touch-action:none}
 .cell{height:20px;border-radius:4px;background:var(--tint);box-shadow:inset 0 0 0 1px var(--soft);cursor:pointer}
@@ -102,7 +100,7 @@ addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh
 
 let today=todayKey(),view=today;
 const HOURS=[];for(let i=0;i<24;i++)HOURS.push((DAY_START+i)%24);
-(()=>{const cols=[0,1].map(()=>{const c=document.createElement('div');c.className='bcol';$('blocks').append(c);return c});HOURS.forEach((h,i)=>{const g=cols[i<12?0:1];const l=document.createElement('span');l.className='hr';l.textContent=h;const r=document.createElement('div');r.className='row';
+(()=>{const g=$('blocks');HOURS.forEach(h=>{const l=document.createElement('span');l.className='hr';l.textContent=h;const r=document.createElement('div');r.className='row';
   for(let m=0;m<6;m++){const c=document.createElement('span');c.className='cell';c.dataset.k=h+'-'+m;r.append(c)}g.append(l,r)})})();
 const nowCell=()=>{const n=new Date();return n.getHours()+'-'+Math.floor(n.getMinutes()/10)};
 const short=k=>{const d=parseKey(k);return `${d.getMonth()+1}.${d.getDate()} (${WEEK[d.getDay()]})`};
