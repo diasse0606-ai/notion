@@ -114,12 +114,13 @@ const tr=$('track');let items=[],filter=S.get('art_filter',''),editing=false;
 const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
 let gal=S.get('gallery',[]),flipped=new Set(),fixI=0;
 const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:KEY},b))}).then(r=>r.json());
-const galOf=f=>gal.find(g=>g.file===f);
+const galOf=f=>gal.find(g=>g.file===f);let galErr='';
 const dot=k=>k?k.replace(/-/g,'.'):'';
 function backHtml(it){const g=galOf(it.file);
   if(g)return `<h3>${esc(g.title||it.name||'')}</h3>${g.date||g.kind?`<small>${[dot(g.date),g.kind].filter(Boolean).map(esc).join(' · ')}</small>`:''}
 <dl>${g.good?`<div><dt>잘한 점</dt><dd>${esc(g.good)}</dd></div>`:''}${g.fix?`<div><dt class="fx">고칠 점</dt><dd>${esc(g.fix)}</dd></div>`:''}</dl>
 <span class="bt"><button data-unflip aria-label="앞면으로">↺</button><a class="main" href="${esc(g.url)}" target="_blank" rel="noopener">${g.good||g.fix?'열기':'회고 쓰기'}</a></span>`;
+  if(galErr)return `<h3>${esc(it.name||it.file)}</h3><small style="color:#c0476a">회고를 불러오지 못했어요 · ${esc(galErr)}</small><span class="bt"><button data-unflip aria-label="앞면으로">↺</button></span>`;
   const free=gal.filter(x=>!x.file&&x.title);
   return `<h3>${esc(it.name||it.file)}</h3>${it.date?`<small>${esc(it.date)}</small>`:''}
 ${free.length?`<select data-sel="${esc(it.file)}" aria-label="작품 갤러리에서 고르기"><option value="">작품 갤러리에서 고르기</option>${free.map(x=>`<option value="${x.id}">${esc(x.title)}${x.date?' · '+dot(x.date):''}</option>`).join('')}</select>`:''}
@@ -127,7 +128,8 @@ ${free.length?`<select data-sel="${esc(it.file)}" aria-label="작품 갤러리�
 function drawFixes(){const f=gal.filter(g=>g.fix);$('fixes').hidden=!f.length;if(!f.length)return;fixI%=f.length;const g=f[fixI];
   $('fixTxt').innerHTML=`<b>${esc(g.title)}</b> · ${esc(g.fix)}`;$('fixTxt').title=g.fix;$('fixNext').hidden=f.length<2}
 async function loadGal(){if(!API)return;try{const r=await fetch(API+'?what=gallery&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
-  if(Array.isArray(j.gallery)){gal=j.gallery;S.set('gallery',gal);drawFixes();draw(true)}}catch(e){}}
+  const was=galErr;galErr=Array.isArray(j.gallery)?'':j.error==='notion'?'노션 연결 필요 ('+j.code+')':j.error==='token'?'노션 토큰 없음':'스크립트 새 버전 배포 필요';
+  if(Array.isArray(j.gallery)){gal=j.gallery;S.set('gallery',gal);drawFixes();draw(true)}else if(was!==galErr)draw(true)}catch(e){}}
 $('fixNext').onclick=()=>{fixI++;drawFixes()};
 if(filter&&!TAGS.includes(filter))filter='';
 const norm=v=>(Array.isArray(v)?v:v?[v]:[]).flatMap(x=>x==='SD 썸네일'?['SD','썸네일']:[x]).filter(x=>TAGS.includes(x));
