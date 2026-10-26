@@ -232,7 +232,7 @@ ${list.length?ring(done,list.length,36):''}<button class="addb" data-add="${k}" 
   const d=new Date().getDay();$('rvBtn').classList.toggle('soft',!(d===0||d===1));
 }
 function formHtml(f,byId){const par=byId[f.parent];
-  return `<form class="form" id="pf">${par?`<span class="up">← ${esc(par.title)}</span>`:''}<input type="text" id="fTitle" aria-label="계획" autocomplete="off" maxlength="200" value="${esc(f.title||'')}">
+  return `<form class="form" id="pf">${f.err?`<span class="up" style="color:#c0476a;font-weight:700">${esc(f.err)}</span>`:''}${par?`<span class="up">← ${esc(par.title)}</span>`:''}<input type="text" id="fTitle" aria-label="계획" autocomplete="off" maxlength="200" value="${esc(f.title||'')}">
 <input type="date" id="fDue" aria-label="기한" value="${esc(f.due||'')}"><div class="row">${AREAS.map(a=>`<button type="button" class="ac" data-fa="${esc(a)}" aria-pressed="${f.area===a}">${a}</button>`).join('')}
 <span class="end"><button type="button" class="btn" id="fCancel">취소</button><button class="btn main" type="submit">추가</button></span></div></form>`}
 async function load(){if(!API)return;try{const r=await fetch(API+'?what=plans&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
@@ -260,7 +260,7 @@ $('levels').addEventListener('submit',async e=>{e.preventDefault();const title=$
   const f=form,due=$('fDue').value,tmp={id:'tmp'+Date.now(),title,due,area:f.area,parent:f.parent,done:false,url:''};
   plans.push(tmp);form=null;draw();
   try{const j=await post({action:'plan_add',title,due,area:f.area,parent:f.parent});if(!j.ok)throw j;Object.assign(tmp,j.plan);keep();draw()}
-  catch(err){plans=plans.filter(x=>x!==tmp);form=Object.assign(f,{title,due,focused:false});draw();toast(whyFail(err),true)}});
+  catch(err){plans=plans.filter(x=>x!==tmp);form=Object.assign(f,{title,due,focused:false,err:whyFail(err)});draw()}});
 $('levels').addEventListener('keydown',e=>{if(e.key==='Escape'&&form){form=null;draw()}});
 $('areas').onclick=e=>{const b=e.target.closest('.ac');if(!b)return;areaF=b.dataset.a;draw()};
 /* 돌아보기 */
