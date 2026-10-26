@@ -186,7 +186,7 @@ addEventListener('storage',e=>{if(e.key&&e.key.startsWith('fd_')&&window.refresh
 const P=new URLSearchParams(location.search),API=P.get('api')||'',KEY=P.get('key')||'';
 const AREAS=['그림 실력','커미션·수입','행사·굿즈','학교','생활'];
 const AC={'그림 실력':['#e4f1fc','#2b74bd'],'커미션·수입':['#efe4fb','#5b3a8a'],'행사·굿즈':['#fbf1c7','#4a3d00'],'학교':['#e3f4ea','#1f5b3a'],'생활':['#fde8ee','#8a2f4b']};
-const LV=[['someday','언젠가','∞','#fbf1c7','#4a3d00'],['year','1년','Y','#eaf3fc','#2b74bd'],['q','3~6개월','6','#e4f1fc','#2b74bd'],['month','이번 달','M','#bcdaf4','#1d5a99'],['week','이번 주','W','#2b7fd4','#ffffff']];
+const LV=[['someday','언젠가','∞','#fbf1c7','#4a3d00'],['year','1년','Y','#eaf3fc','#2b74bd'],['q','2~6개월','6','#e4f1fc','#2b74bd'],['month','이번 달','M','#bcdaf4','#1d5a99'],['week','이번 주','W','#2b7fd4','#ffffff']];
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 let plans=S.get('plans',[]),areaF='',form=null,sent=S.get('plan_sent',{});
 const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:KEY},b))}).then(r=>r.json());
@@ -198,7 +198,7 @@ function bounds(){const t=parseKey(tday()),dw=(t.getDay()+6)%7;
   return {week:keyOf(wk),month:keyOf(me),q:keyOf(q),year:keyOf(y),wkStart:keyOf(new Date(t.getFullYear(),t.getMonth(),t.getDate()-dw))}}
 function levelOf(p,B){if(!p.due)return 'someday';if(p.due<=B.week)return 'week';if(p.due<=B.month)return 'month';if(p.due<=B.q)return 'q';if(p.due<=B.year)return 'year';return 'someday'}
 function defDue(lv,B){const t=parseKey(tday());if(lv==='week')return B.week;if(lv==='month')return B.month;
-  if(lv==='q'){const d=new Date(t);d.setMonth(d.getMonth()+3);return keyOf(new Date(d.getFullYear(),d.getMonth()+1,0))}
+  if(lv==='q'){const d=new Date(t);d.setMonth(d.getMonth()+2);return keyOf(new Date(d.getFullYear(),d.getMonth()+1,0))}
   if(lv==='year'){const d=new Date(t);d.setMonth(d.getMonth()+9);return keyOf(new Date(d.getFullYear(),d.getMonth()+1,0))}return ''}
 const NEXT={someday:'year',year:'q',q:'month',month:'week'};
 function ring(done,total,size){const r=size/2-4,c=2*Math.PI*r,f=total?done/total:0,pct=Math.round(f*100);
