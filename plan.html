@@ -208,6 +208,9 @@ function ring(done,total,size){const r=size/2-4,c=2*Math.PI*r,f=total?done/total
 function ddTxt(due){if(!due)return '';const k=diffDays(tday(),due);return k===0?'D-DAY':k>0?'D-'+k:'D+'+(-k)}
 const md=k=>{const d=parseKey(k),y=new Date().getFullYear();return (d.getFullYear()!==y?d.getFullYear()+'.':'')+(d.getMonth()+1)+'.'+d.getDate()};
 function draw(){
+  // 쓰는 중인 입력칸은 다시 그려도 그대로
+  const fi=$('fTitle'),hadFocus=fi&&document.activeElement===fi,caret=fi?fi.selectionStart:0;
+  if(form&&fi){form.title=fi.value;const fd=$('fDue');if(fd)form.due=fd.value}
   const B=bounds(),byId={};plans.forEach(p=>byId[p.id]=p);
   $('areas').innerHTML=['',...AREAS].map(a=>`<button class="ac" data-a="${esc(a)}" aria-pressed="${areaF===a}">${a||'전체'}</button>`).join('');
   const vis=plans.filter(p=>!areaF||p.area===areaF);
@@ -225,7 +228,7 @@ function draw(){
 ${kids.length?ring(kd,kids.length,30):''}${tmp||p.done?'':act}<button class="x" data-del="${p.id}" aria-label="삭제">×</button></div>`}).join('');
     return `<div class="lv" style="margin-left:${li*8}px"><div class="lvh"><span class="bd" style="background:${bg};color:${fg}">${badge}</span><b>${label}</b><small>${list.length?done+' / '+list.length:''}</small>
 ${list.length?ring(done,list.length,36):''}<button class="addb" data-add="${k}" aria-label="${label}에 추가"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>${f}${rows||(f?'':'')}</div>`}).join('');
-  if(form){const el=$('fTitle');if(el&&document.activeElement!==el&&!form.focused){el.focus();form.focused=true}}
+  if(form){const el=$('fTitle');if(el&&(hadFocus||!form.focused)){el.focus();if(hadFocus)try{el.setSelectionRange(caret,caret)}catch(e){}form.focused=true}}
   const d=new Date().getDay();$('rvBtn').classList.toggle('soft',!(d===0||d===1));
 }
 function formHtml(f,byId){const par=byId[f.parent];
