@@ -88,16 +88,84 @@ button{cursor:pointer}
 .revp textarea{border:1.8px solid var(--line);border-radius:10px;padding:7px 9px;font-size:13px;min-height:52px;resize:vertical;background:var(--tint);font-weight:400}
 .revp textarea:focus-visible{outline:none;border-color:var(--deep)}
 .revp .end{display:flex;justify-content:flex-end;gap:6px}
-.toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--text);color:var(--paper);border-radius:999px;padding:7px 16px;font-size:12.5px;z-index:9}
 
+
+.mode{display:flex;gap:2px;margin-right:auto;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:2px}
+.mode button{border:none;background:none;border-radius:999px;padding:3px 12px;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--muted)}
+.mode button[aria-pressed=true]{background:var(--deep);color:var(--knob)}
+#ideaPane{display:flex;flex-direction:column;gap:12px}
+#ideaPane[hidden]{display:none!important}
+#ideaPane .ihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#ideaPane .up{border:1.6px dashed var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:2px 8px;font-size:11px;white-space:nowrap}
+#ideaPane .up:hover{background:var(--soft)}
+#ideaPane .up.on{border-style:solid;color:var(--muted);cursor:default}
+#ideaPane .ft{flex-wrap:wrap}
+#planPane{display:flex;flex-direction:column;gap:12px}
+#planPane[hidden]{display:none!important}
+#ideaPane .head{flex-wrap:wrap}
+#ideaPane .head h1{margin-right:6px}
+#ideaPane .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-right:auto}
+#ideaPane .tab,#ideaPane .tg{border:1.8px solid var(--line);background:var(--card);border-radius:999px;padding:3px 10px;font-size:12px;line-height:1.35;color:var(--muted)}
+#ideaPane .tab b{font-weight:400;font-size:11px;margin-left:4px;opacity:.8}
+#ideaPane .tab:hover,#ideaPane .tg:hover{background:var(--soft)}
+#ideaPane .tab[aria-pressed=true],#ideaPane .tg[aria-pressed=true]{background:var(--deep);border-color:var(--deep);color:var(--knob)}
+#ideaPane .add{display:flex;flex-direction:column;gap:8px;border:2px solid var(--line);border-radius:16px;padding:10px;background:var(--tint)}
+#ideaPane .row{display:flex;gap:8px;align-items:center}
+#ideaPane .row svg{width:18px;height:18px;color:var(--ink);flex:none;margin-left:4px}
+#ideaPane .row input{flex:1;min-width:0;border:none;background:none;font-size:15px;padding:6px 4px}
+#ideaPane .row input:focus-visible{outline:none}
+#ideaPane .tags{display:flex;flex-wrap:wrap;gap:5px}
+#ideaPane .filt{display:flex;flex-wrap:wrap;gap:5px}
+#ideaPane .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+#ideaPane .card{position:relative;display:flex;flex-direction:column;gap:7px;border:2px solid var(--line);border-radius:14px;padding:11px 11px 10px;background:var(--card);min-height:96px}
+#ideaPane .card.s1{background:var(--yellow)}
+#ideaPane .card.s1,#ideaPane .card.s1 b{color:var(--yellow-ink)}
+#ideaPane .card.s2{background:var(--soft)}
+#ideaPane .card.s3{opacity:.62}
+#ideaPane .card.new{animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+#ideaPane .card .th{width:100%;aspect-ratio:4/3;border-radius:8px;object-fit:cover;background:var(--soft)}
+#ideaPane .card a{color:inherit;text-decoration:none}
+#ideaPane .card a:hover b{text-decoration:underline;text-decoration-color:var(--line)}
+#ideaPane .card b{font-size:14px;line-height:1.4;overflow-wrap:anywhere;color:var(--text);font-weight:700}
+#ideaPane .chips{display:flex;flex-wrap:wrap;gap:4px}
+#ideaPane .chips button{font-size:10.5px;border-radius:999px;padding:1px 7px;background:var(--card);border:1.3px solid var(--line);color:var(--ink)}
+#ideaPane .chips button:hover{background:var(--deep);border-color:var(--deep);color:var(--knob)}
+#ideaPane .chips .tgEdit{border-style:dashed;color:var(--muted)}
+#ideaPane .tmenu{position:absolute;z-index:5;left:8px;right:8px;top:calc(100% - 10px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;box-shadow:0 10px 22px -12px rgba(43,116,189,.55)}
+#ideaPane .tmenu .done{margin-left:auto}
+#ideaPane .ft{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
+#ideaPane .ft small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+#ideaPane .st{border:1.6px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:2px 9px;font-size:11.5px;white-space:nowrap}
+#ideaPane .st:hover{background:var(--soft)}
+#ideaPane .x{position:absolute;top:4px;right:6px;border:none;background:none;color:var(--muted);font-size:15px;padding:2px 4px;opacity:0}
+#ideaPane .card:hover .x,#ideaPane .x:focus-visible{opacity:1}
+@media (hover:none){#ideaPane .x{opacity:.55}}
+#ideaPane .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;grid-column:1/-1}
+#ideaPane .menu{position:absolute;z-index:5;right:6px;top:calc(100% - 10px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 10px 22px -12px rgba(43,116,189,.55);min-width:108px}
+#ideaPane .menu button{border:none;background:none;text-align:left;border-radius:9px;padding:6px 10px;font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:7px}
+#ideaPane .menu button:hover,#ideaPane .menu button:focus-visible{background:var(--soft);outline:none}
+#ideaPane .menu button[aria-checked=true]{color:var(--deep);font-weight:700}
+#ideaPane .menu button i{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+#ideaPane .menu button[data-v="진행 중"] i,#ideaPane .menu button[data-v="작업 중"] i{background:var(--deep)}
+#ideaPane .menu button[data-v="완료"] i,#ideaPane .menu button[data-v="회고 완료"] i,#ideaPane .menu button[data-v="완성"] i{background:var(--star)}
+#ideaPane .menu button[data-v="스케치"] i{background:#f0c94a}
+.toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--text);color:var(--paper);border-radius:999px;padding:7px 8px 7px 16px;font-size:12.5px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px -10px rgba(0,0,0,.4);z-index:9}
+.toast button{border:none;background:var(--paper);color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px}
 </style></head><body>
-<div class="w tint"><div class="head"><h1>PLAN</h1><button class="rv soft" id="rvBtn">지난주 돌아보기</button>
+<div class="w tint"><div class="head"><div class="mode" id="mode"><button data-m="plan" aria-pressed="true">PLAN</button><button data-m="idea" aria-pressed="false">IDEA</button></div><button class="rv soft" id="rvBtn">지난주 돌아보기</button>
 <button class="icon" id="reload" aria-label="새로고침"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button></div>
-<div class="revp" id="rev" hidden><b style="font-size:13px;color:var(--yellow-ink)" id="rvTitle"></b>
+<div id="planPane"><div class="revp" id="rev" hidden><b style="font-size:13px;color:var(--yellow-ink)" id="rvTitle"></b>
 <label>끝낸 것<textarea id="rvDone"></textarea></label><label>못 한 것<textarea id="rvMiss"></textarea></label><label>다음 주로 넘길 것<textarea id="rvNext"></textarea></label>
 <div class="end"><button class="btn" id="rvClose">닫기</button><button class="btn main" id="rvSave">저장</button></div></div>
 <div class="areas" id="areas"></div>
 <div id="levels" style="display:flex;flex-direction:column;gap:10px"></div></div>
+<div id="ideaPane" hidden><div class="ihead"><div class="tabs" id="i_tabs"></div>
+</div>
+<form class="add" id="i_form"><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></svg>
+<input id="i_title" autocomplete="off" aria-label="새 아이디어" maxlength="200"><button class="btn main" type="submit">추가</button></div>
+<div class="tags" id="i_newTags"></div></form>
+<div class="grid" id="i_grid"></div></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
          set(k,v){try{localStorage.setItem('fd_'+k,JSON.stringify(v))}catch(e){}}};
@@ -202,8 +270,96 @@ $('rvBtn').onclick=async()=>{const p=$('rev');if(!p.hidden){p.hidden=true;return
     if(j.review){$('rvDone').value=j.review.done;$('rvMiss').value=j.review.miss;$('rvNext').value=j.review.next}}catch(e){}}};
 $('rvClose').onclick=()=>$('rev').hidden=true;
 $('rvSave').onclick=async()=>{const W=lastWeek();try{const j=await post({action:'review_save',week:W.start,done:$('rvDone').value,miss:$('rvMiss').value,next:$('rvNext').value});if(!j.ok)throw 0;$('rev').hidden=true;toast('저장했어요')}catch(e){toast('저장하지 못했어요')}};
-$('reload').onclick=load;
-window.refresh=()=>{if(!form){plans=S.get('plans',plans);draw()}};
+$('reload').onclick=()=>{load();if(window.loadIdea)window.loadIdea()};
+window.refresh=()=>{if(!form){plans=S.get('plans',plans);draw()}if(window.refreshIdea)window.refreshIdea()};
 draw();load();setInterval(load,5*60*1000);addEventListener('focus',load);setInterval(()=>{if(!form)draw()},60000);
 
+window.planFromIdea=async title=>{const tmp={id:'tmp'+Date.now(),title,due:'',area:'그림 실력',parent:'',done:false,url:''};plans.push(tmp);draw();
+  try{const j=await post({action:'plan_add',title,due:'',area:'그림 실력',parent:''});if(!j.ok)throw 0;Object.assign(tmp,j.plan);keep();draw();toast('PLAN 언젠가에 올렸어요');return true}
+  catch(e){plans=plans.filter(x=>x!==tmp);draw();return false}};
+let mode=S.get('plan_mode','plan');
+function setMode(m){mode=m;S.set('plan_mode',m);$('planPane').hidden=m!=='plan';$('ideaPane').hidden=m!=='idea';$('rvBtn').hidden=m!=='plan';
+  document.querySelectorAll('#mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m))}
+$('mode').onclick=e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m)};
+setMode(mode);
+(()=>{
+const planned=S.get('idea_planned',{});
+
+
+const ST=['메모','스케치','작업 중','완성'];
+/* 상태 고르기 메뉴 + 되돌리기 */
+let menuEl=null,toastT=null;
+function closeMenu(){if(menuEl){menuEl.remove();menuEl=null}}
+function openMenu(btn,opts,cur,onPick){closeMenu();const host=btn.closest('[data-host]');if(!host)return;
+  menuEl=document.createElement('div');menuEl.className='menu';menuEl.setAttribute('role','menu');
+  menuEl.innerHTML=opts.map(o=>`<button role="menuitemradio" data-v="${esc(o)}" aria-checked="${o===cur}"><i></i>${esc(o)}</button>`).join('');
+  host.append(menuEl);if(menuEl.getBoundingClientRect().bottom>innerHeight-4){menuEl.style.top='auto';menuEl.style.bottom='calc(100% - 6px)'}const first=menuEl.querySelector('[aria-checked=true]')||menuEl.querySelector('button');first&&first.focus();
+  menuEl.onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;closeMenu();if(v!==cur)onPick(v)}}
+document.addEventListener('pointerdown',e=>{if(menuEl&&!menuEl.contains(e.target)&&!e.target.closest('[data-menu]'))closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+function toast(msg,undo){let t=document.querySelector('.toast');if(t)t.remove();clearTimeout(toastT);
+  t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${esc(msg)}</span><button>되돌리기</button>`;document.body.append(t);
+  t.querySelector('button').onclick=()=>{t.remove();undo()};toastT=setTimeout(()=>t.remove(),5000)}
+const TAGS=['캐릭터','배경','굿즈용','커미션 샘플','낙서'];
+let ideas=S.get('ideas',[]),tab=S.get('idea_tab','open'),tagF='',pick=[],fresh=null;
+const TABS=[['open','진행',i=>i.status!=='완성'],['메모','메모',i=>i.status==='메모'],['스케치','스케치',i=>i.status==='스케치'],['작업 중','작업 중',i=>i.status==='작업 중'],['완성','완성',i=>i.status==='완성']];
+const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:KEY},b))}).then(r=>r.json());
+const md=k=>{if(!k)return '';const d=parseKey(k);return (d.getMonth()+1)+'.'+d.getDate()};
+function draw(){
+  if(!TABS.some(t=>t[0]===tab))tab='open';
+  $('i_tabs').innerHTML=TABS.map(([v,l,f])=>`<button class="tab" data-t="${esc(v)}" aria-pressed="${tab===v}">${l}<b>${ideas.filter(f).length}</b></button>`).join('')+(tagF?`<button class="tg on" id="i_clearTag" aria-pressed="true" aria-label="${esc(tagF)} 태그 보기 끄기"># ${esc(tagF)} ×</button>`:'');
+  $('i_newTags').innerHTML=TAGS.map(t=>`<button type="button" class="tg" data-t="${esc(t)}" aria-pressed="${pick.includes(t)}">${t}</button>`).join('');
+  const f=TABS.find(t=>t[0]===tab)[2],list=ideas.filter(i=>f(i)&&(!tagF||i.tags.includes(tagF)));
+  $('i_grid').innerHTML=list.length?list.map(i=>{const s=ST.indexOf(i.status);return `<div class="card s${s<0?0:s}${fresh===i.id?' new':''}" data-host>
+<button class="x" data-del="${i.id}" aria-label="삭제">×</button>
+${i.ref?`<img class="th" src="${esc(i.ref)}" alt="" loading="lazy">`:''}
+<a href="${esc(i.url||'#')}" target="_blank" rel="noopener"><b>${esc(i.title)}</b></a>
+<span class="chips">${i.tags.map(t=>`<button data-f="${esc(t)}" aria-label="${esc(t)} 태그만 보기">${esc(t)}</button>`).join('')}<button class="tgEdit" data-tg="${i.id}" data-menu aria-label="태그 고르기">${i.tags.length?'#':'# 태그'}</button></span>
+<span class="ft"><small>${md(i.created)}</small>${i.status!=='완성'&&!String(i.id).startsWith('tmp')?`<button class="up${planned[i.id]?' on':''}" data-up="${i.id}" aria-label="계획으로 올리기">${planned[i.id]?'계획 ✓':'→ 계획'}</button>`:''}<button class="st" data-st="${i.id}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(i.status)}">${esc(i.status)}</button></span></div>`}).join(''):'<div class="empty">—</div>';
+  fresh=null;
+}
+const keep=()=>S.set('ideas',ideas.filter(i=>!String(i.id).startsWith('tmp')));
+async function load(){if(!API)return;try{const r=await fetch(API+'?what=ideas&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
+  if(Array.isArray(j.ideas)){const tmp=ideas.filter(i=>String(i.id).startsWith('tmp'));ideas=tmp.concat(j.ideas);keep();draw()}}catch(e){}}
+$('i_form').onsubmit=async e=>{e.preventDefault();const title=$('i_title').value.trim();if(!title)return;
+  const tmp={id:'tmp'+Date.now(),title,tags:pick.slice(),status:'메모',created:keyOf(new Date()),url:'',ref:''};
+  ideas.unshift(tmp);fresh=tmp.id;$('i_title').value='';pick=[];draw();$('i_title').focus();
+  if(!API)return;try{const j=await post({action:'idea_add',title,tags:tmp.tags});if(!j.ok)throw 0;Object.assign(tmp,j.idea);keep();draw()}
+  catch(err){ideas=ideas.filter(i=>i!==tmp);draw();$('i_title').value=title}};
+$('i_newTags').onclick=e=>{const b=e.target.closest('.tg');if(!b)return;const t=b.dataset.t;pick=pick.includes(t)?pick.filter(x=>x!==t):pick.concat(t);draw()};
+
+$('i_tabs').onclick=e=>{if(e.target.closest('#i_clearTag')){tagF='';draw();return}const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('idea_tab',tab);draw()};
+$('i_grid').onclick=async e=>{
+  const up=e.target.closest('[data-up]');if(up){const i=ideas.find(x=>x.id===up.dataset.up);if(!i||planned[i.id])return;planned[i.id]=1;S.set('idea_planned',planned);draw();
+    const ok=await window.planFromIdea(i.title);if(!ok){delete planned[i.id];S.set('idea_planned',planned);draw()}return}
+  const te=e.target.closest('[data-tg]');if(te){openTags(te);return}
+  const tb=e.target.closest('.tmenu .tg');if(tb){toggleTag(tb);return}
+  if(e.target.closest('.tmenu .done')){closeMenu();return}
+  const tf=e.target.closest('[data-f]');if(tf){tagF=tf.dataset.f;draw();return}
+  const s=e.target.closest('[data-st]'),d=e.target.closest('[data-del]');
+  if(s){const i=ideas.find(x=>x.id===s.dataset.st);if(!i||String(i.id).startsWith('tmp'))return;
+    if(menuEl&&menuEl.parentNode===s.closest('[data-host]')){closeMenu();return}
+    openMenu(s,ST,i.status,v=>setIdea(i,v))}
+  if(d){const i=ideas.find(x=>x.id===d.dataset.del);if(!i||String(i.id).startsWith('tmp'))return;const at=ideas.indexOf(i);ideas.splice(at,1);keep();draw();
+    try{const j=await post({action:'idea_del',id:i.id});if(!j.ok)throw 0}catch(err){ideas.splice(at,0,i);keep();draw()}}
+};
+function openTags(btn){const i=ideas.find(x=>x.id===btn.dataset.tg);if(!i||String(i.id).startsWith('tmp'))return;
+  const host=btn.closest('[data-host]');if(menuEl&&menuEl.parentNode===host){closeMenu();return}closeMenu();
+  menuEl=document.createElement('div');menuEl.className='tmenu';menuEl.dataset.id=i.id;
+  menuEl.innerHTML=TAGS.map(t=>`<button class="tg" data-t="${esc(t)}" aria-pressed="${i.tags.includes(t)}">${t}</button>`).join('')+'<button class="btn done">확인</button>';
+  host.append(menuEl);if(menuEl.getBoundingClientRect().bottom>innerHeight-4){menuEl.style.top='auto';menuEl.style.bottom='calc(100% - 10px)'}}
+let tagT=null;
+function toggleTag(b){const i=ideas.find(x=>x.id===menuEl.dataset.id);if(!i)return;const t=b.dataset.t;
+  i.tags=i.tags.includes(t)?i.tags.filter(x=>x!==t):TAGS.filter(x=>x===t||i.tags.includes(x));b.setAttribute('aria-pressed',i.tags.includes(t));keep();
+  const card=menuEl.parentNode,ch=card.querySelector('.chips');ch.querySelectorAll('[data-f]').forEach(x=>x.remove());
+  ch.insertAdjacentHTML('afterbegin',i.tags.map(x=>`<button data-f="${esc(x)}">${esc(x)}</button>`).join(''));ch.querySelector('.tgEdit').textContent=i.tags.length?'#':'# 태그';
+  clearTimeout(tagT);const snap=i.tags.slice();tagT=setTimeout(async()=>{try{const j=await post({action:'idea_tags',id:i.id,tags:snap});if(!j.ok)throw 0}catch(err){load()}},600)}
+async function setIdea(i,v,undo){const old=i.status;if(old===v)return;i.status=v;keep();draw();
+  if(!undo)toast(`${i.title} → ${v}`,()=>setIdea(i,old,true));
+  try{const j=await post({action:'idea_status',id:i.id,status:v});if(!j.ok)throw 0}catch(err){i.status=old;keep();draw()}}
+window.loadIdea=load;
+window.refreshIdea=()=>{ideas=S.get('ideas',ideas);draw()};
+draw();load();setInterval(load,5*60*1000);addEventListener('focus',load);
+
+})();
 </script></body></html>
