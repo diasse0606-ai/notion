@@ -129,7 +129,7 @@ function drawFixes(){const f=gal.filter(g=>g.fix);$('fixes').hidden=!f.length;if
   $('fixTxt').innerHTML=`<b>${esc(g.title)}</b> · ${esc(g.fix)}`;$('fixTxt').title=g.fix;$('fixNext').hidden=f.length<2}
 async function loadGal(){if(!API)return;try{const r=await fetch(API+'?what=gallery&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
   const was=galErr;galErr=Array.isArray(j.gallery)?'':j.error==='notion'?'노션 연결 필요 ('+j.code+')':j.error==='token'?'노션 토큰 없음':'스크립트 새 버전 배포 필요';
-  if(Array.isArray(j.gallery)){gal=j.gallery;S.set('gallery',gal);drawFixes();draw(true)}else if(was!==galErr)draw(true)}catch(e){}}
+  if(Array.isArray(j.gallery)){gal=j.gallery;S.set('gallery',gal);drawFixes();draw(true)}else if(was!==galErr)draw(true)}catch(e){if(!gal.length){galErr='스크립트 응답 오류';draw(true)}}}
 $('fixNext').onclick=()=>{fixI++;drawFixes()};
 if(filter&&!TAGS.includes(filter))filter='';
 const norm=v=>(Array.isArray(v)?v:v?[v]:[]).flatMap(x=>x==='SD 썸네일'?['SD','썸네일']:[x]).filter(x=>TAGS.includes(x));
