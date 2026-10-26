@@ -238,9 +238,10 @@ function formHtml(f,byId){const par=byId[f.parent];
 async function load(){if(!API)return;try{const r=await fetch(API+'?what=plans&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
   if(Array.isArray(j.plans)){const tmp=plans.filter(p=>String(p.id).startsWith('tmp'));S.set('plans',j.plans);plans=j.plans.concat(tmp);draw()}}catch(e){}}
 const keep=()=>S.set('plans',plans.filter(p=>!String(p.id).startsWith('tmp')));
-let tt=null;function toast(m){let t=document.querySelector('.toast');if(t)t.remove();t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);clearTimeout(tt);tt=setTimeout(()=>t.remove(),2200)}
+let tt=null;function toast(m,long){let t=document.querySelector('.toast');if(t)t.remove();t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);clearTimeout(tt);tt=setTimeout(()=>t.remove(),long?7000:2200)}
+function whyFail(j){if(j&&j.error==='notion')return '저장 실패 · 노션 연결 필요 ('+j.code+')';if(j&&j.error==='token')return '저장 실패 · 노션 토큰 없음';if(j&&j.error==='key')return '저장 실패 · 키가 달라요';if(j&&j.items)return '저장 실패 · 스크립트 새 버전 배포 필요';return '저장 실패 · 스크립트 응답 없음'}
 async function update(p,patch){const old=Object.assign({},p);Object.assign(p,patch);keep();draw();
-  try{const j=await post(Object.assign({action:'plan_update',id:p.id},patch));if(!j.ok)throw 0}catch(e){Object.assign(p,old);keep();draw()}}
+  try{const j=await post(Object.assign({action:'plan_update',id:p.id},patch));if(!j.ok)throw j}catch(e){Object.assign(p,old);keep();draw();toast(whyFail(e),true)}}
 $('levels').addEventListener('click',async e=>{
   const t=e.target;let b;
   if(b=t.closest('[data-add]')){const lv=b.dataset.add;form=form&&form.lv===lv&&!form.parent?null:{lv,due:defDue(lv,bounds()),area:areaF||'',parent:''};draw();return}
@@ -258,8 +259,8 @@ $('levels').addEventListener('click',async e=>{
 $('levels').addEventListener('submit',async e=>{e.preventDefault();const title=$('fTitle').value.trim();if(!title){$('fTitle').focus();return}
   const f=form,due=$('fDue').value,tmp={id:'tmp'+Date.now(),title,due,area:f.area,parent:f.parent,done:false,url:''};
   plans.push(tmp);form=null;draw();
-  try{const j=await post({action:'plan_add',title,due,area:f.area,parent:f.parent});if(!j.ok)throw 0;Object.assign(tmp,j.plan);keep();draw()}
-  catch(err){plans=plans.filter(x=>x!==tmp);form=Object.assign(f,{title,due,focused:false});draw()}});
+  try{const j=await post({action:'plan_add',title,due,area:f.area,parent:f.parent});if(!j.ok)throw j;Object.assign(tmp,j.plan);keep();draw()}
+  catch(err){plans=plans.filter(x=>x!==tmp);form=Object.assign(f,{title,due,focused:false});draw();toast(whyFail(err),true)}});
 $('levels').addEventListener('keydown',e=>{if(e.key==='Escape'&&form){form=null;draw()}});
 $('areas').onclick=e=>{const b=e.target.closest('.ac');if(!b)return;areaF=b.dataset.a;draw()};
 /* 돌아보기 */
@@ -278,8 +279,8 @@ window.refresh=()=>{if(!form){plans=S.get('plans',plans);draw()}if(window.refres
 draw();load();setInterval(load,5*60*1000);addEventListener('focus',load);setInterval(()=>{if(!form)draw()},60000);
 
 window.planFromIdea=async title=>{const tmp={id:'tmp'+Date.now(),title,due:'',area:'그림 실력',parent:'',done:false,url:''};plans.push(tmp);draw();
-  try{const j=await post({action:'plan_add',title,due:'',area:'그림 실력',parent:''});if(!j.ok)throw 0;Object.assign(tmp,j.plan);keep();draw();toast('PLAN 언젠가에 올렸어요');return true}
-  catch(e){plans=plans.filter(x=>x!==tmp);draw();return false}};
+  try{const j=await post({action:'plan_add',title,due:'',area:'그림 실력',parent:''});if(!j.ok)throw j;Object.assign(tmp,j.plan);keep();draw();toast('PLAN 언젠가에 올렸어요');return true}
+  catch(e){plans=plans.filter(x=>x!==tmp);draw();toast(whyFail(e),true);return false}};
 let mode=S.get('plan_mode','plan');
 function setMode(m){mode=m;S.set('plan_mode',m);$('planPane').hidden=m!=='plan';$('ideaPane').hidden=m!=='idea';$('rvBtn').hidden=m!=='plan';
   document.querySelectorAll('#mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m))}
