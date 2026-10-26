@@ -100,6 +100,21 @@ a.icon{text-decoration:none}
 .menu button[data-v="진행 중"] i,.menu button[data-v="작업 중"] i{background:var(--deep)}
 .menu button[data-v="완료"] i,.menu button[data-v="회고 완료"] i,.menu button[data-v="완성"] i{background:var(--star)}
 .menu button[data-v="스케치"] i{background:#f0c94a}
+.dot.cm{background:#f3a9bb;box-shadow:0 0 0 1.5px #d97a93}
+.pj.cm{grid-template-columns:64px 1fr auto}
+.pj.cm.done{opacity:.6}
+.ar.cm{background:#fbe1e8;color:#8a3550}
+.pj.cm.near .dd{background:#f3a9bb;color:#5a1a2c}
+.st.작업중{background:var(--deep);border-color:var(--deep);color:var(--knob)}
+.st.입금대기{background:var(--yellow);border-color:var(--yellow);color:var(--yellow-ink)}
+.more{align-self:center;border:none;background:none;font-size:12.5px;color:var(--muted);padding:4px 10px}
+.more:hover{color:var(--ink)}
+.cf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;border:2px solid #f3a9bb;border-radius:16px;padding:12px 14px;background:var(--tint)}
+.cf .full{grid-column:1/-1}
+.cf label{display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:var(--muted);min-width:0}
+.cf input,.cf select{width:100%;min-width:0;border:1.8px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--card);font-size:13px}
+.cf input:focus-visible,.cf select:focus-visible{outline:none;border-color:var(--deep)}
+.cf .end{display:flex;gap:6px;justify-content:flex-end}
 .toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--text);color:var(--paper);border-radius:999px;padding:7px 8px 7px 16px;font-size:12.5px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px -10px rgba(0,0,0,.4);z-index:9}
 .toast button{border:none;background:var(--paper);color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px}
 
@@ -115,6 +130,12 @@ a.icon{text-decoration:none}
 <div class="r"><button type="button" class="ar2" data-a="그림" aria-pressed="false">그림</button><button type="button" class="ar2" data-a="행사" aria-pressed="false">행사</button>
 <span class="end"><button type="button" class="btn" id="nCancel">취소</button><button type="submit" class="btn main">추가</button></span></div>
 </form>
+<form class="cf" id="cf" hidden>
+<label>신청자<input id="cWho" autocomplete="off"></label><label>타입<select id="cType"></select></label>
+<label class="full">작업 내용<input id="cWhat" autocomplete="off" maxlength="300"></label>
+<label>플랫폼<select id="cPlat"></select></label><label>가격<input id="cPrice" inputmode="numeric" autocomplete="off"></label>
+<label>마감 기한(일)<input id="cDays" inputmode="numeric" autocomplete="off"></label>
+<span class="end full"><button type="button" class="btn" id="cCancel">취소</button><button type="submit" class="btn main">추가</button></span></form>
 <div class="list" id="list"></div></div>
 <script>
 const S={get(k,d){try{const v=localStorage.getItem('fd_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
@@ -153,16 +174,28 @@ let items=S.get('projects_all',[]),tab=S.get('proj_tab','open');
 const isDone=p=>DONE.includes(p.status);
 const dkey=()=>keyOf(new Date());
 const due=p=>p.end||p.start||'';
-const TABS=[['open','진행 · 예정',p=>!isDone(p)],['그림','그림',p=>!isDone(p)&&p.area==='그림'],['행사','행사',p=>!isDone(p)&&p.area==='행사'],['done','완료',isDone]];
+const TABS=[['open','진행 · 예정',p=>!isDone(p)],['그림','그림',p=>!isDone(p)&&p.area==='그림'],['행사','행사',p=>!isDone(p)&&p.area==='행사'],['done','완료',isDone],['com','커미션',null]];
+let com=S.get('com_data',{items:[]}),comAll=false;
+const COM_DONE='완료';
+const cdue=c=>{const m=String(c.due||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?m[1]+'-'+pad(+m[2])+'-'+pad(+m[3]):''};
+const comActive=()=>(com.items||[]).filter(c=>c.status&&c.status!==COM_DONE);
+function comList(){const act=comActive().sort((a,b)=>{const x=cdue(a),y=cdue(b);if(!x)return 1;if(!y)return -1;return x<y?-1:1});
+  const done=(com.items||[]).filter(c=>c.status===COM_DONE).reverse();
+  const show=comAll?act.concat(done):act;
+  const html=show.map(c=>{const d=cdue(c),done=c.status===COM_DONE,k=d?diffDays(dkey(),d):null;const near=!done&&k!==null&&k<=3;
+    return `<div class="pj cm${near?' near':''}${done?' done':''}" id="c${c.row}" data-host><span class="dd">${done?'완료':k===null?'—':k===0?'D-DAY':k>0?'D-'+k:'D+'+(-k)}</span>
+<span class="mid"><span class="t1">${c.type?`<span class="ar cm">${esc(c.type)}</span>`:''}<b>${esc(c.what||c.type)}</b></span>${d?`<small>${md(d)} 마감</small>`:''}</span>
+<button class="st ${esc(String(c.status).replace(/\s/g,''))}" data-row="${c.row}" data-menu aria-haspopup="menu" aria-label="상태: ${esc(c.status)}">${esc(c.status)}</button></div>`}).join('');
+  return (html||'<div class="empty">—</div>')+(done.length?`<button class="more" id="comMore">${comAll?'완료 숨기기':'완료 '+done.length+'개 보기'}</button>`:'')}
 function ddOf(p){const d=due(p);if(!d)return{t:'—',k:null};const k=diffDays(dkey(),d);return{t:k===0?'D-DAY':k>0?'D-'+k:'D+'+(-k),k}}
 const md=k=>{const d=parseKey(k);return (d.getMonth()+1)+'.'+d.getDate()};
 function period(p){const s=p.start,e=p.end,y=new Date().getFullYear(),f=k=>parseKey(k).getFullYear()!==y?k.replace(/-/g,'.'):md(k);
   if(!s)return '';return e&&e!==s?f(s)+' – '+f(e):f(s)}
 function draw(){
   if(!TABS.some(t=>t[0]===tab))tab='open';
-  $('tabs').innerHTML=TABS.map(([v,l,f])=>`<button class="tab" data-t="${v}" aria-pressed="${tab===v}">${l}<b>${items.filter(f).length}</b></button>`).join('');
-  const f=TABS.find(t=>t[0]===tab)[2];
-  const list=items.filter(f).sort((a,b)=>{const x=due(a),y=due(b);if(!x)return 1;if(!y)return -1;return tab==='done'?(x<y?1:-1):(x<y?-1:1)});
+  $('tabs').innerHTML=TABS.map(([v,l,f])=>`<button class="tab" data-t="${v}" aria-pressed="${tab===v}">${l}<b>${f?items.filter(f).length:comActive().length}</b></button>`).join('');
+  const f=TABS.find(t=>t[0]===tab)[2]||(()=>false);
+  const list=items.filter(tab==='com'?(p=>!isDone(p)):f).sort((a,b)=>{const x=due(a),y=due(b);if(!x)return 1;if(!y)return -1;return tab==='done'?(x<y?1:-1):(x<y?-1:1)});
   // 타임라인: 이번 달부터 4개월
   const n=new Date(),T0=new Date(n.getFullYear(),n.getMonth(),1),T1=new Date(n.getFullYear(),n.getMonth()+4,1),SPAN=(T1-T0)/864e5;
   const pos=k=>(parseKey(k)-T0)/864e5/SPAN*100;
@@ -170,7 +203,10 @@ function draw(){
   let r='<span class="ln"></span>'+[25,50,75].map(x=>`<span class="tk" style="left:${x}%"></span>`).join('')+`<span class="now" style="left:${pos(dkey()).toFixed(2)}%"></span>`;
   let rr='',rd='';list.forEach(p=>{if(!p.start)return;const l=pos(p.start);if(l<0||l>100)return;const e=p.end&&p.end!==p.start?Math.min(pos(p.end)+100/SPAN,100):null;
     const h=`<button class="dot${e?' rg':''}${p.status==='진행 중'?' on':p.area==='행사'?' ev':''}" data-id="${p.id}" style="left:${l.toFixed(2)}%${e?`;width:calc(${(e-l).toFixed(2)}% + 9px)`:''}" title="${esc(p.name)}" aria-label="${esc(p.name)}"></button>`;if(e)rr+=h;else rd+=h});
+  comActive().forEach(c=>{const d=cdue(c);if(!d)return;const l=pos(d);if(l<0||l>100)return;
+    rd+=`<button class="dot cm" data-cid="${c.row}" style="left:${l.toFixed(2)}%" title="${esc(c.what)}" aria-label="${esc(c.what)}"></button>`});
   $('rail').innerHTML=r+rr+rd;
+  if(tab==='com'){$('list').innerHTML=comList();const m=$('comMore');if(m)m.onclick=()=>{comAll=!comAll;draw()};return}
   $('list').innerHTML=list.length?list.map(p=>{const d=ddOf(p),run=p.status==='진행 중',done=isDone(p);
     const near=!done&&d.k!==null&&d.k<=7;const pr=p.progress==null?null:Math.round((p.progress>1?p.progress/100:p.progress)*100);
     const sub=[period(p),p.goal].filter(Boolean).map(esc).join(' · ');
@@ -180,21 +216,40 @@ function draw(){
 }
 async function load(){if(!API)return;try{const r=await fetch(API+'?what=projects_all&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
   if(Array.isArray(j.projects)){const tmp=items.filter(x=>String(x.id).startsWith('tmp'));S.set('projects_all',j.projects.filter(p=>p.id));items=j.projects.filter(p=>p.id).concat(tmp);draw()}}catch(e){}}
+async function loadCom(){if(!API)return;try{const r=await fetch(API+'?key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
+  if(Array.isArray(j.items)){com=j;S.set('com_data',com);draw()}}catch(e){}}
+async function comPost(body){try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:KEY},body))});
+  const j=await r.json();if(Array.isArray(j.items)){com=j;S.set('com_data',com);draw();return true}}catch(e){}loadCom();return false}
+function comStatus(row,nx,undo){const c=(com.items||[]).find(x=>x.row==row);if(!c||c.status===nx)return;const old=c.status;c.status=nx;draw();
+  if(!undo)toast(`${c.what||c.type} → ${nx}`,()=>comStatus(row,old,true));comPost({action:'status',row:+row,status:nx})}
 async function setStatus(id,nx,undo){const p=items.find(x=>x.id===id);if(!p||p.status===nx)return;const old=p.status;p.status=nx;S.set('projects_all',items);draw();
   if(!undo)toast(`${p.name} → ${nx}`,()=>setStatus(id,old,true));
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'pstatus',id,status:nx})});const j=await r.json();if(!j.ok)throw 0}
   catch(e){p.status=old;S.set('projects_all',items);draw()}}
 $('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.t;S.set('proj_tab',tab);draw()};
-$('list').onclick=e=>{const b=e.target.closest('.st');if(!b)return;const p=items.find(x=>x.id===b.dataset.id);if(!p||String(p.id).startsWith('tmp'))return;
+$('list').onclick=e=>{const b=e.target.closest('.st');if(!b)return;
+  if(b.dataset.row){const c=(com.items||[]).find(x=>x.row==b.dataset.row);if(!c||!c.row)return;
+    if(menuEl&&menuEl.parentNode===b.closest('[data-host]')){closeMenu();return}
+    openMenu(b,com.statuses&&com.statuses.length?com.statuses:['신청','입금대기','작업중','완료'],c.status,v=>comStatus(c.row,v));return}const p=items.find(x=>x.id===b.dataset.id);if(!p||String(p.id).startsWith('tmp'))return;
   if(menuEl&&menuEl.parentNode===b.closest('[data-host]')){closeMenu();return}
   openMenu(b,STS,p.status,v=>setStatus(p.id,v))};
-$('rail').onclick=e=>{const b=e.target.closest('.dot');if(!b)return;const el=document.getElementById('p'+b.dataset.id);if(!el)return;
+$('rail').onclick=e=>{const b=e.target.closest('.dot');if(!b)return;
+  if(b.dataset.cid&&tab!=='com'){tab='com';S.set('proj_tab',tab);draw()}else if(!b.dataset.cid&&tab==='com'){tab='open';S.set('proj_tab',tab);draw()}
+  const el=document.getElementById((b.dataset.cid?'c'+b.dataset.cid:'p'+b.dataset.id));if(!el)return;
   el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('hl');setTimeout(()=>el.classList.remove('hl'),1400)};
 /* 새 프로젝트 */
 let nArea='';
 function openNew(on){$('nf').hidden=!on;$('add').setAttribute('aria-expanded',on);if(on){$('nName').focus()}else{$('nf').reset();nArea='';areaBtns()}}
 function areaBtns(){document.querySelectorAll('.ar2').forEach(b=>b.setAttribute('aria-pressed',b.dataset.a===nArea))}
-$('add').onclick=()=>openNew($('nf').hidden);$('nCancel').onclick=()=>openNew(false);
+const copts=a=>(a||[]).map(o=>`<option>${esc(o)}</option>`).join('');
+function openCom(on){$('cf').hidden=!on;$('add').setAttribute('aria-expanded',on);if(on){$('cType').innerHTML=copts(com.types);$('cPlat').innerHTML=copts(com.platforms);$('cWho').focus()}else $('cf').reset()}
+$('add').onclick=()=>{if(tab==='com'){openNew(false);openCom($('cf').hidden)}else{openCom(false);openNew($('nf').hidden)}};
+$('cCancel').onclick=()=>openCom(false);
+$('cf').addEventListener('keydown',e=>{if(e.key==='Escape')openCom(false)});
+$('cf').onsubmit=e=>{e.preventDefault();const what=$('cWhat').value.trim();if(!what){$('cWhat').focus();return}
+  const body={action:'add',who:$('cWho').value.trim(),type:$('cType').value,what,platform:$('cPlat').value,price:$('cPrice').value.replace(/\D/g,''),days:$('cDays').value.replace(/\D/g,'')};
+  const days=+body.days;(com.items=com.items||[]).push({row:0,type:body.type,what,status:'신청',due:days?addDays(dkey(),days):''});
+  openCom(false);draw();comPost(body)};$('nCancel').onclick=()=>openNew(false);
 document.querySelectorAll('.ar2').forEach(b=>b.onclick=()=>{nArea=nArea===b.dataset.a?'':b.dataset.a;areaBtns()});
 $('nf').addEventListener('keydown',e=>{if(e.key==='Escape')openNew(false)});
 $('nf').onsubmit=async e=>{e.preventDefault();const name=$('nName').value.trim();if(!name){$('nName').focus();return}
@@ -205,9 +260,9 @@ $('nf').onsubmit=async e=>{e.preventDefault();const name=$('nName').value.trim()
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:KEY,action:'proj_add',name:tmp.name,start:tmp.start,end:tmp.end,goal:tmp.goal,area:tmp.area})});
     const j=await r.json();if(!j.ok)throw 0;Object.assign(tmp,j.project);S.set('projects_all',items.filter(x=>!String(x.id).startsWith('tmp')));draw()}
   catch(err){items=items.filter(x=>x!==tmp);draw();openNew(true);$('nName').value=tmp.name;$('nStart').value=tmp.start;$('nEnd').value=tmp.end;$('nGoal').value=tmp.goal;nArea=tmp.area;areaBtns()}};
-$('reload').onclick=load;
-window.refresh=()=>{items=S.get('projects_all',items);draw()};
-draw();load();setInterval(load,5*60*1000);addEventListener('focus',load);
+$('reload').onclick=()=>{load();loadCom()};
+window.refresh=()=>{items=S.get('projects_all',items);com=S.get('com_data',com);draw()};
+draw();load();loadCom();setInterval(()=>{load();loadCom()},5*60*1000);addEventListener('focus',()=>{load();loadCom()});
 setInterval(draw,60*1000);
 
 </script></body></html>
