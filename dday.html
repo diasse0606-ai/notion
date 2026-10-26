@@ -56,6 +56,10 @@ button{cursor:pointer}
 a.chip{text-decoration:none;color:inherit;padding-right:8px}
 a.chip:hover{background:var(--soft)}
 a.chip.proj{border-style:dashed}
+.chip.com{border-color:#f3a9bb;background:#fff5f8}
+.chip.com .nm b{color:#2c4660}
+.chip.com .d{background:#f3a9bb;color:#5a1a2c}
+.chip.com small{color:#8a5a6a}
 .chip .x{border:none;background:none;color:var(--muted);font-size:15px;padding:0 2px;opacity:0}
 .chip:hover .x,.chip .x:focus-visible{opacity:1}
 @media (hover:none){.chip .x{opacity:.6}}
@@ -96,20 +100,26 @@ async function loadProjects(){
   try{const r=await fetch(API+'?what=projects&key='+encodeURIComponent(KEY)+'&t='+Date.now());const j=await r.json();
     if(j.projects){S.set('proj',j.projects);refresh()}}catch(e){}
 }
+async function loadCom(){if(!API)return;try{const j=await (await fetch(API+'?key='+encodeURIComponent(KEY)+'&t='+Date.now())).json();
+  if(Array.isArray(j.items)){S.set('com_data',j);refresh()}}catch(e){}}
+const cdue=c=>{const m=String(c.due||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?m[1]+'-'+pad(+m[2])+'-'+pad(+m[3]):''};
 function refresh(){
   const today=midKey(),n=new Date();
   $('date').textContent=fmtLong(today);$('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
   const mine=S.get('ddays',[]).map(e=>Object.assign({kind:'mine'},e));
   const proj=S.get('proj',[]).map(p=>({kind:'proj',name:p.name,date:p.date,url:p.url,area:p.area}));
+  // 커미션은 마감 3일 이내(지난 것 포함, 완료 전까지)
+  const com=((S.get('com_data',{})||{}).items||[]).filter(c=>c.status&&c.status!=='완료'&&cdue(c)&&diffDays(today,cdue(c))<=3).map(c=>({kind:'com',name:c.what||c.type,date:cdue(c),area:'커미션'+(c.type?' · '+c.type:'')}));
   // 지난 일정은 D+3까지만 보여요
-  const list=mine.concat(proj).filter(e=>diffDays(today,e.date)>=-3).sort((a,b)=>a.date<b.date?-1:1);
+  const list=com.concat(mine.concat(proj).filter(e=>diffDays(today,e.date)>=-3)).sort((a,b)=>a.date<b.date?-1:1);
   $('chips').innerHTML=list.map(ev=>{const k=diffDays(today,ev.date),d=parseKey(ev.date);
     const cls=`chip${k===0?' today':k<0?' past':k<=7?' near':''}`;
     const inner=`<span class="nm"><b>${esc(ev.name)}</b><small>${ev.area?esc(ev.area)+' · ':''}${d.getMonth()+1}.${d.getDate()} (${WEEK[d.getDay()]})</small></span><span class="d">${k===0?'D-DAY':k>0?'D-'+k:'D+'+(-k)}</span>`;
+    if(ev.kind==='com')return `<div class="${cls.replace(' past','')} com">${inner}</div>`;
     return ev.kind==='proj'?`<a class="${cls} proj" href="${esc(ev.url)}" target="_blank" rel="noopener">${inner}</a>`
       :`<div class="${cls}">${inner}<button class="x" data-id="${ev.id}" aria-label="삭제">×</button></div>`}).join('');
 }
-loadProjects();setInterval(loadProjects,10*60*1000);addEventListener('focus',loadProjects);
+loadProjects();loadCom();setInterval(()=>{loadProjects();loadCom()},10*60*1000);addEventListener('focus',()=>{loadProjects();loadCom()});
 $('chips').onclick=e=>{const x=e.target.closest('.x');if(!x)return;S.set('ddays',S.get('ddays',[]).filter(v=>v.id!=x.dataset.id));refresh()};
 $('add').onclick=()=>{const f=$('form');f.hidden=!f.hidden;if(!f.hidden){$('dt').value=addDays(midKey(),7);$('nm').focus()}};
 $('form').onsubmit=e=>{e.preventDefault();const name=$('nm').value.trim(),date=$('dt').value;if(!name||!date)return;
