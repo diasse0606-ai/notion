@@ -108,9 +108,6 @@ function refresh(){
   $('date').textContent=fmtLong(today);$('clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
   const mine=S.get('ddays',[]).map(e=>Object.assign({kind:'mine'},e));
   const proj=S.get('proj',[]).map(p=>({kind:'proj',name:p.name,date:p.date,url:p.url,area:p.area}));
-  // PLAN — 하위 계획이 아닌 큰 계획 중 30일 이내
-  const names=new Set(proj.map(p=>p.name));
-  (S.get('plans',[])||[]).forEach(p=>{if(p.done||p.parent||!p.due||names.has(p.title))return;const k=diffDays(today,p.due);if(k<=30)proj.push({kind:'proj',name:p.title,date:p.due,url:p.url,area:p.area||'PLAN'})});
   // 커미션은 마감 3일 이내(지난 것 포함, 완료 전까지)
   const com=((S.get('com_data',{})||{}).items||[]).filter(c=>c.status&&c.status!=='완료'&&cdue(c)&&diffDays(today,cdue(c))<=3).map(c=>({kind:'com',name:c.what||c.type,date:cdue(c),area:'커미션'+(c.type?' · '+c.type:'')}));
   // 지난 일정은 D+3까지만 보여요
@@ -123,7 +120,7 @@ function refresh(){
       :`<div class="${cls}">${inner}<button class="x" data-id="${ev.id}" aria-label="삭제">×</button></div>`}).join('');
 }
 async function loadPlans(){if(!API)return;try{const j=await (await fetch(API+'?what=plans&key='+encodeURIComponent(KEY)+'&t='+Date.now())).json();if(Array.isArray(j.plans)){S.set('plans',j.plans);refresh()}}catch(e){}}
-const loadAll=()=>{loadProjects();loadPlans();loadCom()};
+const loadAll=()=>{loadProjects();loadCom()};
 loadAll();setInterval(loadAll,10*60*1000);addEventListener('focus',loadAll);
 $('chips').onclick=e=>{const x=e.target.closest('.x');if(!x)return;S.set('ddays',S.get('ddays',[]).filter(v=>v.id!=x.dataset.id));refresh()};
 $('add').onclick=()=>{const f=$('form');f.hidden=!f.hidden;if(!f.hidden){$('dt').value=addDays(midKey(),7);$('nm').focus()}};
