@@ -56,6 +56,9 @@ button{cursor:pointer}
 .addb svg{width:12px;height:12px}
 .addb:hover{background:var(--soft)}
 .it{position:relative;display:flex;align-items:center;gap:8px;padding:6px 4px 6px 6px;border-radius:10px}
+.star{border:none;background:none;color:var(--line);font-size:16px;line-height:1;padding:2px;flex:none;cursor:pointer}
+.star:hover{color:#f0b429}
+.star.on{color:#f0b429}
 .it:hover{background:var(--tint)}
 .ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:var(--card);padding:0;display:grid;place-items:center}
 .ck svg{width:11px;height:11px;color:var(--knob);opacity:0}
@@ -225,7 +228,7 @@ function draw(){
       const act=k==='week'?`<button class="act go${sent[p.id]===tday()?' sent':''}" data-today="${p.id}">${sent[p.id]===tday()?'보냄':'오늘로'}</button>`:`<button class="act" data-split="${p.id}" aria-label="${LV[li+1][1]}로 쪼개기">↓ ${LV[li+1][1]}</button>`;
       return `<div class="it${p.done?' done':''}"><button class="ck" data-ck="${p.id}" aria-label="${p.done?'완료 취소':'완료'}">${CHECK}</button>
 <a class="tx" href="${esc(p.url||'#')}" target="_blank" rel="noopener"><span>${esc(p.title)}</span>${meta?`<small>${meta}</small>`:''}</a>
-${kids.length?ring(kd,kids.length,30):''}${tmp||p.done?'':act}<button class="x" data-del="${p.id}" aria-label="삭제">×</button></div>`}).join('');
+${kids.length?ring(kd,kids.length,30):''}${tmp||p.done||!p.due?'':`<button class="star${p.star?' on':''}" data-star="${p.id}" aria-pressed="${!!p.star}" aria-label="D-DAY에 띄우기">★</button>`}${tmp||p.done?'':act}<button class="x" data-del="${p.id}" aria-label="삭제">×</button></div>`}).join('');
     return `<div class="lv" style="margin-left:${li*8}px"><div class="lvh"><span class="bd" style="background:${bg};color:${fg}">${badge}</span><b>${label}</b><small>${list.length?done+' / '+list.length:''}</small>
 ${list.length?ring(done,list.length,36):''}<button class="addb" data-add="${k}" aria-label="${label}에 추가"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>${f}${rows||(f?'':'')}</div>`}).join('');
   if(form){const el=$('fTitle');if(el&&(hadFocus||!form.focused)){el.focus();if(hadFocus)try{el.setSelectionRange(caret,caret)}catch(e){}form.focused=true}}
@@ -249,6 +252,7 @@ $('levels').addEventListener('click',async e=>{
     form={lv,due:defDue(lv,B),area:p.area,parent:p.id};if(p.due&&form.due>p.due)form.due=p.due;draw();return}
   if(b=t.closest('[data-fa]')){form.area=form.area===b.dataset.fa?'':b.dataset.fa;form.title=$('fTitle').value;form.due=$('fDue').value;form.focused=false;draw();return}
   if(t.closest('#fCancel')){form=null;draw();return}
+  if(b=t.closest('[data-star]')){const p=plans.find(x=>x.id===b.dataset.star);if(p)update(p,{star:!p.star});return}
   if(b=t.closest('[data-ck]')){const p=plans.find(x=>x.id===b.dataset.ck);if(!p||String(p.id).startsWith('tmp'))return;update(p,{done:!p.done});return}
   if(b=t.closest('[data-del]')){const p=plans.find(x=>x.id===b.dataset.del);if(!p||String(p.id).startsWith('tmp'))return;const at=plans.indexOf(p);plans.splice(at,1);keep();draw();
     try{const j=await post({action:'plan_del',id:p.id});if(!j.ok)throw 0}catch(err){plans.splice(at,0,p);keep();draw()}return}
